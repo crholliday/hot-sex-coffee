@@ -15,21 +15,21 @@
 
             <!-- This "nav-toggle" hamburger menu is only visible on mobile -->
             <!-- You need JavaScript to toggle the "is-active" class on "nav-menu" -->
-            span.nav-toggle
+            span.nav-toggle(@click="isActive = !isActive")
                 span
                 span
                 span
 
             <!-- This "nav-menu" is hidden on mobile -->
             <!-- Add the modifier "is-active" to display it on mobile -->
-            .nav-right.nav-menu
-                a.nav-item.is-tab
+            .nav-right.nav-menu(:class="{ 'is-active': isActive }")
+                router-link.nav-item.is-tab(to="/")
                     i.fa.fa-home(style="font-size: 16px") &nbsp;
                     span Home
-                a.nav-item.is-tab 
+                router-link.nav-item.is-tab(to="/news") 
                     i.fa.fa-file-text-o(style="font-size: 16px") &nbsp;
                     span News
-                a.nav-item.is-tab
+                router-link.nav-item.is-tab(to="/flights")
                     i.fa.fa-plane(style="font-size: 16px") &nbsp;
                     span Flights
     section.hero.is-dark.is-bold
@@ -37,8 +37,8 @@
             .container.is-fluid
                 h1.title
                     i.fa.fa-list(style='font-size: 36px')           
-                    span &nbsp; News List          
-                h2.subtitle News from everywhere... 
+                    span &nbsp; {{$route.meta.titleText}}         
+                h2.subtitle {{$route.meta.subtitleText}}
 </template>
 
 <script>
@@ -46,9 +46,13 @@
 export default {
   name: 'nav-header',
   data () {
-    return {}
+    return {
+      isActive: false
+    }
   },
-  methods: {}
+  methods: {
+
+  }
 }
 </script>
 
