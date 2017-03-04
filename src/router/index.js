@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import News from 'components/News'
 import Flights from 'components/Flights'
+import Todos from 'components/Todos'
 
 Vue.use(Router)
 
@@ -23,6 +24,15 @@ export default new Router({
       meta: {
         titleText: 'News List',
         subtitleText: 'News from everywhere...'
+      }
+    },
+    {
+      path: '/todos',
+      name: 'Todos',
+      component: Todos,
+      meta: {
+        titleText: 'Todo List',
+        subtitleText: 'Get your stuff done...'
       }
     },
     {

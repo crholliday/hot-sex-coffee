@@ -6,7 +6,7 @@
                 a.nav-item
                     i.fa.fa-fire.is-red(style="font-size: 28px; color: red;") &nbsp; Hot Sex Coffee
             .nav-center
-                a.nav-item
+                a.nav-item(href="https://github.com/crholliday")
                     .icon
                         i.fa.fa-github
                 a.nav-item
@@ -29,6 +29,9 @@
                 router-link.nav-item.is-tab(to="/news") 
                     i.fa.fa-file-text-o(style="font-size: 16px") &nbsp;
                     span News
+                router-link.nav-item.is-tab(to="/todos") 
+                    i.fa.fa-tasks(style="font-size: 16px") &nbsp;
+                    span Todos
                 router-link.nav-item.is-tab(to="/flights")
                     i.fa.fa-plane(style="font-size: 16px") &nbsp;
                     span Flights
