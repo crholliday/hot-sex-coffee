@@ -16,6 +16,12 @@ Vue.filter('formatDate', function (value) {
   }
 })
 
+Vue.filter('formatTime', function (value) {
+  if (value) {
+    return moment(String(value)).format('HH:MM')
+  }
+})
+
 Vue.filter('currency', function (value, decimals) {
   value = parseFloat(value)
   if (!isFinite(value) || (!value && value !== 0)) return ''
