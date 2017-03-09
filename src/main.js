@@ -18,7 +18,8 @@ Vue.filter('formatDate', function (value) {
 
 Vue.filter('formatTime', function (value) {
   if (value) {
-    return moment(String(value)).format('HH:MM')
+    // the format string is using the moment-duration-plugin
+    return moment(String(value)).format('h:m')
   }
 })
 
