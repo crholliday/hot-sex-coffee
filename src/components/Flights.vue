@@ -14,13 +14,13 @@
                 | segments ({{ duration(flight.departureFirstFlight.departs_at, flight.departureLastFlight.arrives_at) }}):
               div(v-for='itinerary in flight.doc.itineraries.outbound.flights') 
                 span From: {{ itinerary.origin.airport }} --> To : {{ itinerary.destination.airport}}
-                  | ({{itinerary.departs_at | formatTime}} - {{itinerary.arrives_at | formatTime}}) on {{ itinerary.marketing_airline }}
+                  | ({{itinerary.departs_at | formatTime}} - {{itinerary.arrives_at | formatTime}}) on {{ getAirlineName(itinerary.marketing_airline) }}
             .column 
               div Return {{ flight.doc.itineraries.inbound.flights.length }} 
                 | Segments ({{ duration(flight.returnFirstFlight.departs_at, flight.returnLastFlight.arrives_at) }}):
               div(v-for='itinerary in flight.doc.itineraries.inbound.flights') 
                 span From: {{ itinerary.origin.airport }} --> To : {{ itinerary.destination.airport}}
-                  | ({{itinerary.departs_at | formatTime}} - {{itinerary.arrives_at | formatTime}}) on {{ itinerary.marketing_airline }}
+                  | ({{itinerary.departs_at | formatTime}} - {{itinerary.arrives_at | formatTime}}) on {{ getAirlineName(itinerary.marketing_airline) }}
 
 
 </template>
@@ -28,12 +28,14 @@
 <script>
 const moment = require('moment')
 require('moment-duration-format')
+const config = require('../config')
 
 export default {
   name: 'flights',
   data () {
     return {
-      flights: []
+      flights: [],
+      airlines: []
     }
   },
   methods: {
@@ -42,17 +44,22 @@ export default {
       return moment.duration(ms, 'ms').format('h [hrs] m [min]')
     },
     getAirlineName: function (code) {
-      this.$http.get('http://localhost:3000/airlines/' + code)
-        .then(response => {
-          return response.data.Airline
-        })
+      let airline = this.airlines.find(x => x.IATA === code)
+      if (!airline) {
+        return code
+      }
+      return airline.Airline
     }
   },
   created: function () {
-    // this.$http.get('http://hotsexcoffee.com/api/cheap-flights')
-    this.$http.get('http://localhost:3000/cheap-flights')
+    this.$http.get(config.api_base_url + '/cheap-flights')
       .then(response => {
         this.flights = response.data
+      })
+
+    this.$http.get(config.api_base_url + '/airlines')
+      .then(response => {
+        this.airlines = response.data
       })
   }
 }
