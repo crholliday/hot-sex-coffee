@@ -7,20 +7,33 @@
         span.tag.is-primary.is-large: strong {{ flight.price | currency }}
       .media-content
           h3.title {{flight.departureAirport}} to {{ flight.arrivalAirport}}
-          h5.subtitle Rate {{ flight.departureDate | formatDate }} to {{ flight.returnDate | formatDate }} : 
+          h5.subtitle.is-6 Rate from 
+            strong {{ flight.docCreated | formatDateHuman }}
           .columns
             .column 
-              div Outbound {{ flight.doc.itineraries.outbound.flights.length }} 
-                | segments ({{ duration(flight.departureFirstFlight.departs_at, flight.departureLastFlight.arrives_at) }}):
-              div(v-for='itinerary in flight.doc.itineraries.outbound.flights') 
-                span From: {{ itinerary.origin.airport }} --> To : {{ itinerary.destination.airport}}
-                  | ({{itinerary.departs_at | formatTime}} - {{itinerary.arrives_at | formatTime}}) on {{ getAirlineName(itinerary.marketing_airline) }}
+              .card
+                header.card-header 
+                  p.card-header-title 
+                    i.fa.fa-arrow-right  Outbound: {{ flight.departureDate | formatDate }}
+                .card-content
+                  div: u {{ flight.doc.itineraries.outbound.flights.length }} 
+                    | segments ({{ duration(flight.departureFirstFlight.departs_at, flight.departureLastFlight.arrives_at) }}):
+                  div(v-for='itinerary in flight.doc.itineraries.outbound.flights') 
+                    span From: {{ itinerary.origin.airport }} --> To : {{ itinerary.destination.airport}} 
+                      | ({{itinerary.departs_at | formatTime}} - {{itinerary.arrives_at | formatTime}}) 
+                    div: small {{ getAirlineName(itinerary.marketing_airline) }} - {{ itinerary.flight_number }}
             .column 
-              div Return {{ flight.doc.itineraries.inbound.flights.length }} 
-                | Segments ({{ duration(flight.returnFirstFlight.departs_at, flight.returnLastFlight.arrives_at) }}):
-              div(v-for='itinerary in flight.doc.itineraries.inbound.flights') 
-                span From: {{ itinerary.origin.airport }} --> To : {{ itinerary.destination.airport}}
-                  | ({{itinerary.departs_at | formatTime}} - {{itinerary.arrives_at | formatTime}}) on {{ getAirlineName(itinerary.marketing_airline) }}
+              .card
+                header.card-header 
+                  p.card-header-title 
+                    i.fa.fa-arrow-left  Return:  {{ flight.returnDate | formatDate }}
+                .card-content
+                  div: u {{ flight.doc.itineraries.inbound.flights.length }} 
+                    | Segments ({{ duration(flight.returnFirstFlight.departs_at, flight.returnLastFlight.arrives_at) }}):
+                  div(v-for='itinerary in flight.doc.itineraries.inbound.flights') 
+                    span From: {{ itinerary.origin.airport }} --> To : {{ itinerary.destination.airport}} 
+                      | ({{itinerary.departs_at | formatTime}} - {{itinerary.arrives_at | formatTime}}) 
+                    div: small {{ getAirlineName(itinerary.marketing_airline) }} - {{ itinerary.flight_number }}
 
 
 </template>
@@ -41,7 +54,7 @@ export default {
   methods: {
     duration: function (start, finish) {
       let ms = moment(finish).diff(moment(start))
-      return moment.duration(ms, 'ms').format('h [hrs] m [min]')
+      return moment.duration(ms, 'ms').format('h[h] mm[m]')
     },
     getAirlineName: function (code) {
       let airline = this.airlines.find(x => x.IATA === code)
@@ -67,6 +80,14 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+.card-header {
+  background-color: lightgrey
+}
+
+.card {
+  height: 100%;
+}
 
 </style>
 

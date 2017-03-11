@@ -16,10 +16,16 @@ Vue.filter('formatDate', function (value) {
   }
 })
 
+Vue.filter('formatDateHuman', function (value) {
+  if (value) {
+    return moment(String(value)).fromNow()
+  }
+})
+
 Vue.filter('formatTime', function (value) {
   if (value) {
     // the format string is using the moment-duration-plugin
-    return moment(String(value)).format('h:m')
+    return moment(String(value)).format('LT')
   }
 })
 
