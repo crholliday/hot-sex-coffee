@@ -16,6 +16,12 @@ Vue.filter('formatDate', function (value) {
   }
 })
 
+Vue.filter('duration', function (start, finish) {
+  if (start && finish) {
+    return moment.duration(finish - start).asDays()
+  }
+})
+
 Vue.filter('formatDateHuman', function (value) {
   if (value) {
     return moment(String(value)).fromNow()
@@ -25,7 +31,7 @@ Vue.filter('formatDateHuman', function (value) {
 Vue.filter('formatTime', function (value) {
   if (value) {
     // the format string is using the moment-duration-plugin
-    return moment(String(value)).format('LT')
+    return moment.utc(String(value)).format('LT')
   }
 })
 
