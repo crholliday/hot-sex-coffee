@@ -19,34 +19,39 @@
         .media-left
           span.tag.is-primary.is-large: strong {{ flight.price | currency }}
         .media-content
-            h3.title {{flight.departureAirport}} to {{ flight.arrivalAirport}} for {{durationAsDays(flight.departureDate, flight.returnDate)}} days
-            h5.subtitle.is-6 Rate from 
-              strong {{ flight.docCreated | formatDateHuman }}
-            .columns
-              .column 
-                .card
-                  header.card-header 
-                    p.card-header-title 
-                      i.fa.fa-arrow-right  Outbound: {{ flight.departureDate | formatDate }}
-                  .card-content
-                    div: u {{ flight.doc.itineraries.outbound.flights.length }} 
-                      | segments ({{ duration(flight.departureFirstFlight.departs_at, flight.departureLastFlight.arrives_at) }}):
-                    div(v-for='itinerary in flight.doc.itineraries.outbound.flights') 
-                      span From: {{ itinerary.origin.airport }} --> To : {{ itinerary.destination.airport}} 
-                        | ({{itinerary.departs_at | formatTime}} - {{itinerary.arrives_at | formatTime}}) 
-                      div: small {{ getAirlineName(itinerary.marketing_airline) }} - {{ itinerary.flight_number }}
-              .column 
-                .card
-                  header.card-header 
-                    p.card-header-title 
-                      i.fa.fa-arrow-left  Return:  {{ flight.returnDate | formatDate }}
-                  .card-content
-                    div: u {{ flight.doc.itineraries.inbound.flights.length }} 
-                      | Segments ({{ duration(flight.returnFirstFlight.departs_at, flight.returnLastFlight.arrives_at) }}):
-                    div(v-for='itinerary in flight.doc.itineraries.inbound.flights') 
-                      span From: {{ itinerary.origin.airport }} --> To : {{ itinerary.destination.airport}} 
-                        | ({{itinerary.departs_at | formatTime}} - {{itinerary.arrives_at | formatTime}}) 
-                      div: small {{ getAirlineName(itinerary.marketing_airline) }} - {{ itinerary.flight_number }}
+          .columns
+            .column.is-9
+              h3.title {{flight.departureAirport}} to {{ flight.arrivalAirport}} for {{durationAsDays(flight.departureDate, flight.returnDate)}} days
+              h5.subtitle.is-6 Rate from 
+                strong {{ flight.docCreated | formatDateHuman }}
+            .column.is-3
+              div Price Trend <br />
+              peity( v-bind:type='"bar"' v-bind:data='trendData(flight.departureAirport, flight.arrivalAirport)')
+          .columns
+            .column 
+              .card
+                header.card-header 
+                  p.card-header-title 
+                    i.fa.fa-arrow-right  Outbound: {{ flight.departureDate | formatDate }}
+                .card-content
+                  div: u {{ flight.doc.itineraries.outbound.flights.length }} 
+                    | segments ({{ duration(flight.departureFirstFlight.departs_at, flight.departureLastFlight.arrives_at) }}):
+                  div(v-for='itinerary in flight.doc.itineraries.outbound.flights') 
+                    span From: {{ itinerary.origin.airport }} --> To : {{ itinerary.destination.airport}} 
+                      | ({{itinerary.departs_at | formatTime}} - {{itinerary.arrives_at | formatTime}}) 
+                    div: small {{ getAirlineName(itinerary.marketing_airline) }} - {{ itinerary.flight_number }}
+            .column 
+              .card
+                header.card-header 
+                  p.card-header-title 
+                    i.fa.fa-arrow-left  Return:  {{ flight.returnDate | formatDate }}
+                .card-content
+                  div: u {{ flight.doc.itineraries.inbound.flights.length }} 
+                    | Segments ({{ duration(flight.returnFirstFlight.departs_at, flight.returnLastFlight.arrives_at) }}):
+                  div(v-for='itinerary in flight.doc.itineraries.inbound.flights') 
+                    span From: {{ itinerary.origin.airport }} --> To : {{ itinerary.destination.airport}} 
+                      | ({{itinerary.departs_at | formatTime}} - {{itinerary.arrives_at | formatTime}}) 
+                    div: small {{ getAirlineName(itinerary.marketing_airline) }} - {{ itinerary.flight_number }}
 
 
 </template>
@@ -55,6 +60,8 @@
 const moment = require('moment')
 require('moment-duration-format')
 const config = require('../config')
+// eslint-disable-next-line no-unused-vars
+import Peity from 'vue-peity'
 
 export default {
   name: 'flights',
@@ -63,8 +70,12 @@ export default {
       flights: [],
       airlines: [],
       routes: [],
-      endPoints: ''
+      endPoints: '',
+      trends: []
     }
+  },
+  components: {
+    Peity
   },
   computed: {
     filteredFlights: function () {
@@ -79,6 +90,14 @@ export default {
     }
   },
   methods: {
+    trendData: function (start, end) {
+      return this.trends.filter(function (trend) {
+        return trend.departureAirport === start &&
+          trend.arrivalAirport === end
+      }).map(function (trend) {
+        return trend.price
+      }).toString()
+    },
     returnUTC: function (someDate) {
       console.log(moment.utc(someDate))
     },
@@ -110,7 +129,10 @@ export default {
       .then(response => {
         this.flights = response.data
       })
-
+    this.$http.get(config.api_base_url + '/cheap-flights-by-day')
+      .then(response => {
+        this.trends = response.data
+      })
     this.$http.get(config.api_base_url + '/airlines')
       .then(response => {
         this.airlines = response.data
