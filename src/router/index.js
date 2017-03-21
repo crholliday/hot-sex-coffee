@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import News from 'components/News'
 import Flights from 'components/Flights'
 import Todos from 'components/Todos'
+import Home from 'components/Home'
 import Routes from 'components/Routes'
 
 Vue.use(Router)
@@ -12,10 +13,10 @@ export default new Router({
     {
       path: '/',
       name: 'Home',
-      component: News,
+      component: Home,
       meta: {
-        titleText: 'News List',
-        subtitleText: 'News from everywhere...'
+        titleText: 'Summary Stuff',
+        subtitleText: 'All the stuff you need...'
       }
     },
     {

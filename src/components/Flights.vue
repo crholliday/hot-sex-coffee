@@ -26,7 +26,7 @@
                 strong {{ flight.docCreated | formatDateHuman }}
             .column.is-3
               div Price Trend <br />
-              peity( v-bind:type='"bar"' v-bind:data='trendData(flight.departureAirport, flight.arrivalAirport)')
+              peity( v-bind:type='"bar"' v-bind:options='{width: 70}' v-bind:data='trendData(flight.departureAirport, flight.arrivalAirport)')
           .columns
             .column 
               .card
