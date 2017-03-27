@@ -1,6 +1,8 @@
 <template lang="pug">
   .container.home
     p.title.is-2 Cheap Flights
+    .subtitle.is-6 Last updated: {{lastUpdated | formatDateHuman}} 
+      | | {{ count }} total records
     .columns
       .column(v-for='flight in flights')
         .box
@@ -26,7 +28,9 @@ export default {
   },
   data () {
     return {
-      flights: []
+      flights: [],
+      lastUpdated: '',
+      count: 0
     }
   },
   methods: {
@@ -38,6 +42,12 @@ export default {
     this.$http.get(config.api_base_url + '/cheap-flight-by-route')
       .then(response => {
         this.flights = response.data
+      })
+    this.$http.get(config.api_base_url + '/flights-stats')
+      .then(response => {
+        console.log(response.data)
+        this.lastUpdated = response.data.latestDate
+        this.count = response.data.recordCount
       })
   }
 }
