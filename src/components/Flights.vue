@@ -11,10 +11,14 @@
         p.level-item(v-for='route in routes')
            a(@click='setEndpoints(route.departureAirport, route.arrivalAirport)') 
             | {{route.departureAirport}} to {{route.arrivalAirport}}
-        p.level-item: a.button.is-success(@click='endPoints = ""') All
+        p.level-item: a.button.is-success(@click='setEndpoints("","")') All
   .spacer
   .section.news-list
     .container
+      .card.chart(v-if='chartData != null')
+        bar-chart(v-bind:data='chartData' 
+                  v-bind:options='{ maintainAspectRatio: false}' 
+                  v-bind:height='350' )
       article.media(v-for='flight in filteredFlights')
         .media-left
           span.tag.is-primary.is-large: strong {{ flight.price | currency }}
@@ -26,7 +30,9 @@
                 strong {{ flight.docCreated | formatDateHuman }}
             .column.is-3
               div Price Trend <br />
-              peity( v-bind:type='"bar"' v-bind:options='{width: 70}' v-bind:data='trendData(flight.departureAirport, flight.arrivalAirport)')
+              peity( v-bind:type='"bar"' 
+                     v-bind:options='{width: 70}' 
+                     v-bind:data='trendData(flight.departureAirport, flight.arrivalAirport)')
           .columns
             .column 
               .card
@@ -60,8 +66,8 @@
 const moment = require('moment')
 require('moment-duration-format')
 const config = require('../config')
-// eslint-disable-next-line no-unused-vars
 import Peity from 'vue-peity'
+import BarChart from '../components/BarChart.js'
 
 export default {
   name: 'flights',
@@ -71,11 +77,15 @@ export default {
       airlines: [],
       routes: [],
       endPoints: '',
-      trends: []
+      trends: [],
+      routeTrends: [],
+      chartData: null,
+      loading: true
     }
   },
   components: {
-    Peity
+    Peity,
+    BarChart
   },
   computed: {
     filteredFlights: function () {
@@ -117,11 +127,34 @@ export default {
       return airline.Airline
     },
     setEndpoints: function (a, b) {
-      console.log('a and b are:' + a + ', ' + b)
+      this.chartData = null
       if (a === '') {
         this.endPoints = ''
+        this.chartData = null
+      } else {
+        this.endPoints = a + ',' + b
+        this.$http.get(config.api_base_url + '/flights-by-endpoints?origin=' + a + '&destination=' + b)
+          .then(response => {
+            this.routeTrends = response.data
+            this.loading = false
+            this.chartData = this.makeChartData(a, b)
+          })
       }
-      this.endPoints = a + ',' + b
+    },
+    makeChartData: function (a, b) {
+      let dates = this.routeTrends.map(function (a) { return moment(a.created).format('MM/DD/YYYY') })
+      let prices = this.routeTrends.map(function (a) { return a.price })
+      let data = {
+        labels: dates,
+        datasets: [
+          {
+            label: 'Prices',
+            borderWidth: 1,
+            data: prices
+          }
+        ]
+      }
+      return data
     }
   },
   created: function () {
@@ -137,7 +170,6 @@ export default {
       .then(response => {
         this.airlines = response.data
       })
-
     this.$http.get(config.api_base_url + '/distinct_routes')
       .then(response => {
         this.routes = response.data
@@ -156,7 +188,10 @@ export default {
 .card {
   height: 100%;
 }
-
+.card.chart {
+  height: 350px;
+  margin-bottom: 1.5rem;
+}
 .box {
   margin-top: 1rem
 }

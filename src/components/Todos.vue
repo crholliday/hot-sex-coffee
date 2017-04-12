@@ -2,24 +2,21 @@
   .container.todos
     .columns
         .column.is-9
-          h3.title.h3 List of Todos
-          table.table.is-striped.is-narrow
-            thead
-              tr
-                th Task
-                th Category
-                th Importance
-                th Status
-                th Created
-                th Edit
-            tbody
-              tr(v-for='todo in todos')
-                td {{ todo.task }}
-                td {{ todo.category }}
-                td {{ todo.importance }}
-                td {{ todo.status }}
-                td {{ todo.created }}
-                td: a(@click='deleteTodo(todo._id)') remove
+          .columns
+            .column.is-9.is-offset-2
+              .box(v-for='todo in todos')
+                article.media
+                  .media-content
+                    h3.title {{ todo.task }}
+                    p.subtitle(v-if='todo.dueDate') Due: {{ todo.dueDate | formatDateHuman}}
+                    small {{ todo.created | formatDateHuman }}
+                    div.tag {{ todo.category }}
+                    div.tag Priority: {{ todo.importance }}
+                    div.tag Status: {{ todo.status }}
+                  .media-right
+                    span.icon.is-medium: a(@click='deleteTodo(todo._id)')
+                       i.fa.fa-check-circle
+              
         .column.is-3
           .box
             h3.title.h3 Add a new Todo
@@ -31,10 +28,13 @@
               input.input(type='text' placeholder='Category' v-model='category')
             label.label Importance
             p.control
-              input.input(type='number' placeholder='Importance' v-model='importance')
+              input.input(type='number' placeholder='Importance' v-model.number='importance')
             label.label Status
             p.control
               input.input(type='text' placeholder='Status' v-model='status')
+            label.label Due Date
+            p.control
+              input.input(type='date' placeholder='Due Date' v-model='dueDate')
             hr
             p.control
               button.button.is-primary(@click.prevent='createTodo()') Create Todo
@@ -57,6 +57,7 @@ export default {
       category: '',
       importance: '',
       status: '',
+      dueDate: '',
       created: ''
     }
   },
@@ -72,11 +73,13 @@ export default {
         task: this.task,
         category: this.category,
         importance: this.importance,
+        dueDate: this.dueDate,
         status: this.status
       }
       this.$http.post(config.api_base_url + '/todo', todo)
             .then(response => {
               this.loadTodos()
+              this.clearTodoForm()
             })
     },
     deleteTodo: function (id) {
@@ -84,6 +87,13 @@ export default {
       .then(response => {
         this.loadTodos()
       })
+    },
+    clearTodoForm: function () {
+      this.task = ''
+      this.category = ''
+      this.importance = ''
+      this.status = ''
+      this.dueDate = ''
     }
   },
   created: function () {
@@ -97,5 +107,6 @@ export default {
   .container.todos {
     padding-top: 1.5rem;
   }
+  
 </style>
 

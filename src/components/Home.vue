@@ -3,7 +3,7 @@
     p.title.is-2 Cheap Flights
     .subtitle.is-6 Last updated: {{lastUpdated | formatDateHuman}} 
       | | {{ count }} total records
-    .columns
+    .columns.is-multiline
       .column(v-for='flight in flights')
         .box
           article.media          
