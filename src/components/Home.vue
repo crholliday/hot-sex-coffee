@@ -45,7 +45,6 @@ export default {
       })
     this.$http.get(config.api_base_url + '/flights-stats')
       .then(response => {
-        console.log(response.data)
         this.lastUpdated = response.data.latestDate
         this.count = response.data.recordCount
       })

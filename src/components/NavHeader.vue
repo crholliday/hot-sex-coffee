@@ -35,6 +35,15 @@
                 router-link.nav-item.is-tab(to="/flights")
                     i.fa.fa-plane(style="font-size: 16px") &nbsp;
                     span Flights
+                .nav-item
+                  .field.is-grouped(v-if="!isLoggedIn")
+                    p.control
+                        router-link.button(to="/login")
+                            span Login
+                  .fieldis-grouped(v-else)
+                    p.control
+                        .button.is-primary(@click="logout")
+                            span Logout
     section.hero.is-dark.is-bold
         .hero-body
             .container.is-fluid
@@ -45,17 +54,21 @@
 </template>
 
 <script>
+ 
+import {mapState, mapActions} from 'vuex'
 
 export default {
-  name: 'nav-header',
-  data () {
-    return {
-      isActive: false
-    }
-  },
-  methods: {
-
-  }
+   name: 'nav-header',
+   data () {
+     return {
+       isActive: false
+     }
+   },
+   methods: {
+     ...mapActions(['logout'])
+   },
+   computed:
+     mapState(['isLoggedIn'])
 }
 </script>
 

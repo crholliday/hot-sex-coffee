@@ -5,6 +5,8 @@ import Flights from 'components/Flights'
 import Todos from 'components/Todos'
 import Home from 'components/Home'
 import Routes from 'components/Routes'
+import Register from 'components/Register'
+import Login from 'components/Login'
 
 Vue.use(Router)
 
@@ -26,6 +28,24 @@ export default new Router({
       meta: {
         titleText: 'News List',
         subtitleText: 'News from everywhere...'
+      }
+    },
+    {
+      path: '/register',
+      name: 'Register',
+      component: Register,
+      meta: {
+        titleText: 'Registration',
+        subtitleText: 'Get access to all the goodies...'
+      }
+    },
+    {
+      path: '/login',
+      name: 'Login',
+      component: Login,
+      meta: {
+        titleText: 'Login',
+        subtitleText: 'Get in the house...'
       }
     },
     {
