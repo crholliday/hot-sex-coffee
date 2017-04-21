@@ -8,17 +8,19 @@
           p.control.has-addons
             router-link(to='/routes') Manage routes
       .level-right
-        p.level-item(v-for='route in routes')
+        p.level-item(v-for='route in distinctRoutes')
            a(@click='setEndpoints(route.departureAirport, route.arrivalAirport)') 
             | {{route.departureAirport}} to {{route.arrivalAirport}}
         p.level-item: a.button.is-success(@click='setEndpoints("","")') All
   .spacer
   .section.news-list
     .container
-      .card.chart(v-if='chartData != null')
-        bar-chart(v-bind:data='chartData' 
-                  v-bind:options='{ maintainAspectRatio: false}' 
-                  v-bind:height='350' )
+      .columns
+        .column.is-11.is-offset-1
+          .card(v-if='chartData != null')
+            bar-chart(v-bind:data='chartData' 
+                      v-bind:options='{ maintainAspectRatio: false}' 
+                      v-bind:height='350' )
       article.media(v-for='flight in filteredFlights')
         .media-left
           span.tag.is-primary.is-large: strong {{ flight.price | currency }}
@@ -68,16 +70,13 @@ require('moment-duration-format')
 const config = require('../config')
 import Peity from 'vue-peity'
 import BarChart from '../components/BarChart.js'
+import {mapGetters, mapActions} from 'vuex'
 
 export default {
   name: 'flights',
   data () {
     return {
-      flights: [],
-      airlines: [],
-      routes: [],
       endPoints: '',
-      trends: [],
       routeTrends: [],
       chartData: null,
       loading: true
@@ -88,20 +87,38 @@ export default {
     BarChart
   },
   computed: {
+    ...mapGetters([
+      'airlines',
+      'cheapFlights',
+      'cheapFlightsByDay',
+      'distinctRoutes'
+    ]),
     filteredFlights: function () {
+      if (this.cheapFlights.length === 0) {
+        this.loadCheapFlights()
+      }
       if (typeof this.endPoints !== 'undefined' && this.endPoints !== '') {
         let self = this
-        return this.flights.filter(function (flight) {
+        return this.cheapFlights.filter(function (flight) {
           return flight.departureAirport === self.endPoints.split(',')[0] &&
                 flight.arrivalAirport === self.endPoints.split(',')[1]
         })
       }
-      return this.flights
+      return this.cheapFlights
     }
   },
   methods: {
+    ...mapActions([
+      'loadAirlines',
+      'loadCheapFlights',
+      'loadCheapFlightsByDay',
+      'loadRoutes'
+    ]),
     trendData: function (start, end) {
-      return this.trends.filter(function (trend) {
+      if (this.cheapFlightsByDay.length === 0) {
+        this.loadCheapFlightsByDay()
+      }
+      return this.cheapFlightsByDay.filter(function (trend) {
         return trend.departureAirport === start &&
           trend.arrivalAirport === end
       }).map(function (trend) {
@@ -120,6 +137,9 @@ export default {
       return moment.duration(ms, 'ms').asDays()
     },
     getAirlineName: function (code) {
+      if (this.airlines.length === 0) {
+        this.loadAirlines()
+      }
       let airline = this.airlines.find(x => x.IATA === code)
       if (!airline) {
         return code
@@ -143,14 +163,22 @@ export default {
     },
     makeChartData: function (a, b) {
       let dates = this.routeTrends.map(function (a) { return moment(a.created).format('MM/DD/YYYY') })
-      let prices = this.routeTrends.map(function (a) { return a.price })
+      let lowPrices = this.routeTrends.map(function (a) { return a.low_price })
+      let avgPrices = this.routeTrends.map(function (a) { return a.avg_price })
       let data = {
         labels: dates,
         datasets: [
           {
-            label: 'Prices',
+            label: 'Low Prices',
             borderWidth: 1,
-            data: prices
+            data: lowPrices,
+            backgroundColor: '#80DEEA'
+          },
+          {
+            label: 'Avg Prices',
+            borderWidth: 1,
+            data: avgPrices,
+            backgroundColor: '#81D4FA'
           }
         ]
       }
@@ -158,22 +186,9 @@ export default {
     }
   },
   created: function () {
-    this.$http.get(config.api_base_url + '/cheap-flights')
-      .then(response => {
-        this.flights = response.data
-      })
-    this.$http.get(config.api_base_url + '/cheap-flights-by-day')
-      .then(response => {
-        this.trends = response.data
-      })
-    this.$http.get(config.api_base_url + '/airlines')
-      .then(response => {
-        this.airlines = response.data
-      })
-    this.$http.get(config.api_base_url + '/distinct_routes')
-      .then(response => {
-        this.routes = response.data
-      })
+    if (this.distinctRoutes.length === 0) {
+      this.loadRoutes()
+    }
   }
 }
 </script>
