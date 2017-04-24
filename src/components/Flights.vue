@@ -9,18 +9,13 @@
             router-link(to='/routes') Manage routes
       .level-right
         p.level-item(v-for='route in distinctRoutes')
-           a(@click='setEndpoints(route.departureAirport, route.arrivalAirport)') 
+           a(@click='origin = route.departureAirport, destination = route.arrivalAirport') 
             | {{route.departureAirport}} to {{route.arrivalAirport}}
         p.level-item: a.button.is-success(@click='setEndpoints("","")') All
   .spacer
   .section.news-list
     .container
-      .columns
-        .column.is-11.is-offset-1
-          .card(v-if='chartData != null')
-            bar-chart(v-bind:data='chartData' 
-                      v-bind:options='{ maintainAspectRatio: false}' 
-                      v-bind:height='350' )
+      flight-trend-chart(v-if='origin && destination' v-bind:origin='origin' v-bind:destination='destination')
       article.media(v-for='flight in filteredFlights')
         .media-left
           span.tag.is-primary.is-large: strong {{ flight.price | currency }}
@@ -67,16 +62,17 @@
 <script>
 const moment = require('moment')
 require('moment-duration-format')
-const config = require('../config')
 import Peity from 'vue-peity'
-import BarChart from '../components/BarChart.js'
+import FlightTrendChart from '../components/FlightTrendChart.vue'
 import {mapGetters, mapActions} from 'vuex'
 
 export default {
   name: 'flights',
   data () {
     return {
-      endPoints: '',
+      origin: '',
+      destination: '',
+      flightData: [],
       routeTrends: [],
       chartData: null,
       loading: true
@@ -84,7 +80,7 @@ export default {
   },
   components: {
     Peity,
-    BarChart
+    FlightTrendChart
   },
   computed: {
     ...mapGetters([
@@ -97,11 +93,11 @@ export default {
       if (this.cheapFlights.length === 0) {
         this.loadCheapFlights()
       }
-      if (typeof this.endPoints !== 'undefined' && this.endPoints !== '') {
+      if (typeof this.origin !== 'undefined' && this.origin !== '') {
         let self = this
         return this.cheapFlights.filter(function (flight) {
-          return flight.departureAirport === self.endPoints.split(',')[0] &&
-                flight.arrivalAirport === self.endPoints.split(',')[1]
+          return flight.departureAirport === self.origin &&
+                flight.arrivalAirport === self.destination
         })
       }
       return this.cheapFlights
@@ -145,44 +141,6 @@ export default {
         return code
       }
       return airline.Airline
-    },
-    setEndpoints: function (a, b) {
-      this.chartData = null
-      if (a === '') {
-        this.endPoints = ''
-        this.chartData = null
-      } else {
-        this.endPoints = a + ',' + b
-        this.$http.get(config.api_base_url + '/flights-by-endpoints?origin=' + a + '&destination=' + b)
-          .then(response => {
-            this.routeTrends = response.data
-            this.loading = false
-            this.chartData = this.makeChartData(a, b)
-          })
-      }
-    },
-    makeChartData: function (a, b) {
-      let dates = this.routeTrends.map(function (a) { return moment(a.created).format('MM/DD/YYYY') })
-      let lowPrices = this.routeTrends.map(function (a) { return a.low_price })
-      let avgPrices = this.routeTrends.map(function (a) { return a.avg_price })
-      let data = {
-        labels: dates,
-        datasets: [
-          {
-            label: 'Low Prices',
-            borderWidth: 1,
-            data: lowPrices,
-            backgroundColor: '#80DEEA'
-          },
-          {
-            label: 'Avg Prices',
-            borderWidth: 1,
-            data: avgPrices,
-            backgroundColor: '#81D4FA'
-          }
-        ]
-      }
-      return data
     }
   },
   created: function () {

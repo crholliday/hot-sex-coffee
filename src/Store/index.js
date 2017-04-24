@@ -1,6 +1,7 @@
 import Vuex from 'vuex'
 import Vue from 'vue'
 import axios from 'axios'
+import router from '../router'
 
 const config = require('../config')
 
@@ -14,7 +15,6 @@ const REMOVE_LOGGED_IN_USER = 'REMOVE_LOGGED_IN_USER'
 const LOAD_DISTINCT_ROUTES = 'LOAD_DISTINCT_ROUTES'
 const LOAD_CHEAP_FLIGHTS = 'LOAD_CHEAP_FLIGHTS'
 const LOAD_AIRLINES = 'LOAD_AIRLINES'
-const LOAD_CHEAP_FLIGHTS_BY_ENDPOINT = 'LOAD_CHEAP_FLIGHTS_BY_ENDPOINT'
 const LOAD_CHEAP_FLIGHTS_BY_DAY = 'LOAD_CHEAP_FLIGHTS_BY_DAY'
 
 // eslint-disable-next-line
@@ -24,7 +24,6 @@ const store = new Vuex.Store({
     loggedInUser: {},
     distinctRoutes: [],
     cheapFlights: [],
-    cheapFlightsByEndpoint: [],
     airlines: [],
     cheapFlightsByDay: []
   },
@@ -54,9 +53,6 @@ const store = new Vuex.Store({
     [LOAD_AIRLINES] (state, airlines) {
       state.airlines = airlines
     },
-    [LOAD_CHEAP_FLIGHTS_BY_ENDPOINT] (state, flights) {
-      state.cheapFlightsByEndpoint = flights
-    },
     [LOAD_CHEAP_FLIGHTS_BY_DAY] (state, flights) {
       state.cheapFlightsByDay = flights
     }
@@ -66,16 +62,17 @@ const store = new Vuex.Store({
       commit(LOGIN) // show spinner
       axios.post(config.api_base_url + '/login', creds)
         .then(response => {
-          console.log('response from API, user object', response)
           localStorage.setItem('token', response.data.token)
           commit(ASSIGN_LOGGED_IN_USER, response.data.user)
           commit(LOGIN_SUCCESS)
+          router.push('/')
         })
     },
     logout ({commit}) {
       localStorage.removeItem('token')
       commit(REMOVE_LOGGED_IN_USER)
       commit(LOGOUT)
+      router.push('/login')
     },
     loadRoutes ({state, commit}) {
       axios.get(config.api_base_url + '/distinct_routes')
@@ -93,12 +90,6 @@ const store = new Vuex.Store({
       axios.get(config.api_base_url + '/airlines')
         .then(response => {
           commit(LOAD_AIRLINES, response.data)
-        })
-    },
-    loadCheapFlightsByEndpoint ({state, commit}) {
-      axios.get(config.api_base_url + '/cheap-flights-by-endpoint')
-        .then(response => {
-          commit(LOAD_CHEAP_FLIGHTS_BY_ENDPOINT, response.data)
         })
     },
     loadCheapFlightsByDay ({state, commit}) {
@@ -123,9 +114,6 @@ const store = new Vuex.Store({
     },
     airlines: state => {
       return state.airlines
-    },
-    cheapFlightsByEndpoint: state => {
-      return state.cheapFlightsByEndpoint
     },
     cheapFlightsByDay: state => {
       return state.cheapFlightsByDay

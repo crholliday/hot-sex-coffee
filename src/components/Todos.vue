@@ -44,6 +44,7 @@
 <script>
 require('moment-duration-format')
 const config = require('../config')
+import {mapGetters} from 'vuex'
 
 export default {
   name: 'todos',
@@ -61,6 +62,11 @@ export default {
       created: ''
     }
   },
+  computed: {
+    ...mapGetters([
+      'loggedInUser'
+    ])
+  },
   methods: {
     loadTodos: function () {
       this.$http.get(config.api_base_url + '/todos')
@@ -74,7 +80,8 @@ export default {
         category: this.category,
         importance: this.importance,
         dueDate: this.dueDate,
-        status: this.status
+        status: this.status,
+        user: this.loggedInUser
       }
       this.$http.post(config.api_base_url + '/todo', todo)
             .then(response => {

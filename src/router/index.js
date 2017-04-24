@@ -7,8 +7,20 @@ import Home from 'components/Home'
 import Routes from 'components/Routes'
 import Register from 'components/Register'
 import Login from 'components/Login'
+import store from '../Store'
 
 Vue.use(Router)
+
+function requireAuth (to, from, next) {
+  if (!store.state.isLoggedIn) {
+    next({
+      path: '/login',
+      query: { redirect: to.fullPath }
+    })
+  } else {
+    next()
+  }
+}
 
 export default new Router({
   routes: [
@@ -16,6 +28,7 @@ export default new Router({
       path: '/',
       name: 'Home',
       component: Home,
+      beforeEnter: requireAuth,
       meta: {
         titleText: 'Summary Stuff',
         subtitleText: 'All the stuff you need...'
@@ -52,6 +65,7 @@ export default new Router({
       path: '/todos',
       name: 'Todos',
       component: Todos,
+      beforeEnter: requireAuth,
       meta: {
         titleText: 'Todo List',
         subtitleText: 'Get your stuff done...'
@@ -61,6 +75,7 @@ export default new Router({
       path: '/flights',
       name: 'Flights',
       component: Flights,
+      beforeEnter: requireAuth,
       meta: {
         titleText: 'Flight List',
         subtitleText: 'Check flight fares...'
@@ -70,6 +85,7 @@ export default new Router({
       path: '/routes',
       name: 'Routes',
       component: Routes,
+      beforeEnter: requireAuth,
       meta: {
         titleText: 'Route List',
         subtitleText: 'Manage routes used for flights...'

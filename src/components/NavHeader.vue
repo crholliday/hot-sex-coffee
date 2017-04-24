@@ -42,7 +42,7 @@
                             span Login
                   .fieldis-grouped(v-else)
                     p.control
-                        .button.is-primary(@click="logout")
+                        .button.is-primary(@click="logoutUser")
                             span Logout
     section.hero.is-dark.is-bold
         .hero-body
@@ -65,7 +65,10 @@ export default {
      }
    },
    methods: {
-     ...mapActions(['logout'])
+     ...mapActions(['logout']),
+     logoutUser: function () {
+       this.logout()
+     }
    },
    computed:
      mapState(['isLoggedIn'])

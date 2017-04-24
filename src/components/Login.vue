@@ -34,6 +34,7 @@
 </template>
 
 <script>
+import {mapActions} from 'vuex'
 
 export default {
   name: 'login',
@@ -46,6 +47,9 @@ export default {
     }
   },
   methods: {
+    ...mapActions([
+      'login'
+    ]),
     reset: function () {
       this.username = ''
       this.password = ''
@@ -56,9 +60,7 @@ export default {
           username: this.username,
           password: this.password
         }
-        this.$store.dispatch('login', user).then(() => {
-          this.$router.push('/')
-        })
+        this.login(user)
       }).catch((err) => {
         alert('Correct the errors!' + err)
       })

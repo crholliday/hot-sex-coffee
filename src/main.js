@@ -70,3 +70,11 @@ new Vue({
   template: '<App/>',
   components: { App }
 })
+
+// router.beforeEach((to, from, next) => {
+//   if (to.meta.auth && !store.state.isLoggedIn) {
+//     next({ path: '/login' })
+//   } else {
+//     next()
+//   }
+// })
