@@ -16,6 +16,8 @@ const LOAD_DISTINCT_ROUTES = 'LOAD_DISTINCT_ROUTES'
 const LOAD_CHEAP_FLIGHTS = 'LOAD_CHEAP_FLIGHTS'
 const LOAD_AIRLINES = 'LOAD_AIRLINES'
 const LOAD_CHEAP_FLIGHTS_BY_DAY = 'LOAD_CHEAP_FLIGHTS_BY_DAY'
+const LOAD_TODOS = 'LOAD_TODOS'
+const DELETE_TODO = 'DELETE_TODO'
 
 // eslint-disable-next-line
 const store = new Vuex.Store({
@@ -25,7 +27,8 @@ const store = new Vuex.Store({
     distinctRoutes: [],
     cheapFlights: [],
     airlines: [],
-    cheapFlightsByDay: []
+    cheapFlightsByDay: [],
+    todos: []
   },
   mutations: {
     [LOGIN] (state) {
@@ -55,6 +58,13 @@ const store = new Vuex.Store({
     },
     [LOAD_CHEAP_FLIGHTS_BY_DAY] (state, flights) {
       state.cheapFlightsByDay = flights
+    },
+    [LOAD_TODOS] (state, todos) {
+      state.todos = todos
+    },
+    [DELETE_TODO] (state, todo) {
+      let todos = state.todos
+      todos.splice(todos.indexOf(todo), 1)
     }
   },
   actions: {
@@ -97,6 +107,24 @@ const store = new Vuex.Store({
         .then(response => {
           commit(LOAD_CHEAP_FLIGHTS_BY_DAY, response.data)
         })
+    },
+    loadTodos ({state, commit}) {
+      axios.get(config.api_base_url + '/todos')
+        .then(response => {
+          commit(LOAD_TODOS, response.data)
+        })
+    },
+    addTodo ({state, commit}, todo) {
+      axios.get(config.api_base_url + '/todos')
+        .then(response => {
+          commit(LOAD_TODOS, response.data)
+        })
+    },
+    deleteTodo ({state, commit}, todo) {
+      axios.delete(config.api_base_url + '/todo/' + todo._id)
+        .then(response => {
+          commit(DELETE_TODO, todo)
+        })
     }
   },
   getters: {
@@ -115,8 +143,8 @@ const store = new Vuex.Store({
     airlines: state => {
       return state.airlines
     },
-    cheapFlightsByDay: state => {
-      return state.cheapFlightsByDay
+    todos: state => {
+      return state.todos
     }
   }
 })

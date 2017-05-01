@@ -3,8 +3,8 @@
   .column.is-11.is-offset-1
     .card
       bar-chart(v-bind:chartData='chartData' 
-                v-bind:options='{ maintainAspectRatio: false}' 
-                v-bind:height='350' )
+                v-bind:options='makeChartOptions()' 
+                v-bind:height='340', v-bind:width='960' )
 </template>
 
 <script>
@@ -27,6 +27,22 @@ export default {
     }
   },
   methods: {
+    makeChartOptions: function () {
+      return {
+        responsive: false,
+        scales: {
+          yAxes: [{
+            gridLines: {
+              display: true,
+              color: 'rgba(0,0,0,0.1'
+            },
+            ticks: {
+              beginAtZero: false
+            }
+          }]
+        }
+      }
+    },
     loadCheapFlightsByEndpoint: function (origin, destination) {
       axios.get(config.api_base_url + '/flights-by-endpoints?origin=' + origin + '&destination=' + destination)
         .then(response => {
@@ -44,14 +60,16 @@ export default {
           {
             label: 'Low Prices',
             borderWidth: 1,
+            pointRadius: 2,
             data: lowPrices,
-            backgroundColor: '#80DEEA'
+            backgroundColor: 'rgba(0, 14, 14, 0.57)'
           },
           {
             label: 'Avg Prices',
             borderWidth: 1,
+            pointRadius: 2,
             data: avgPrices,
-            backgroundColor: '#81D4FA'
+            backgroundColor: 'rgba(4, 112, 110, 0.57)'
           }
         ]
       }

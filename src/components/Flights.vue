@@ -11,7 +11,7 @@
         p.level-item(v-for='route in distinctRoutes')
            a(@click='origin = route.departureAirport, destination = route.arrivalAirport') 
             | {{route.departureAirport}} to {{route.arrivalAirport}}
-        p.level-item: a.button.is-success(@click='setEndpoints("","")') All
+        p.level-item: a.button.is-success(@click='origin = "", destination = ""') All
   .spacer
   .section.news-list
     .container
@@ -30,33 +30,7 @@
               peity( v-bind:type='"bar"' 
                      v-bind:options='{width: 70}' 
                      v-bind:data='trendData(flight.departureAirport, flight.arrivalAirport)')
-          .columns
-            .column 
-              .card
-                header.card-header 
-                  p.card-header-title 
-                    i.fa.fa-arrow-right  Outbound: {{ flight.departureDate | formatDate }}
-                .card-content
-                  div: u {{ flight.doc.itineraries.outbound.flights.length }} 
-                    | segments ({{ duration(flight.departureFirstFlight.departs_at, flight.departureLastFlight.arrives_at) }}):
-                  div(v-for='itinerary in flight.doc.itineraries.outbound.flights') 
-                    span From: {{ itinerary.origin.airport }} --> To : {{ itinerary.destination.airport}} 
-                      | ({{itinerary.departs_at | formatTime}} - {{itinerary.arrives_at | formatTime}}) 
-                    div: small {{ getAirlineName(itinerary.marketing_airline) }} - {{ itinerary.flight_number }}
-            .column 
-              .card
-                header.card-header 
-                  p.card-header-title 
-                    i.fa.fa-arrow-left  Return:  {{ flight.returnDate | formatDate }}
-                .card-content
-                  div: u {{ flight.doc.itineraries.inbound.flights.length }} 
-                    | Segments ({{ duration(flight.returnFirstFlight.departs_at, flight.returnLastFlight.arrives_at) }}):
-                  div(v-for='itinerary in flight.doc.itineraries.inbound.flights') 
-                    span From: {{ itinerary.origin.airport }} --> To : {{ itinerary.destination.airport}} 
-                      | ({{itinerary.departs_at | formatTime}} - {{itinerary.arrives_at | formatTime}}) 
-                    div: small {{ getAirlineName(itinerary.marketing_airline) }} - {{ itinerary.flight_number }}
-
-
+          flight-card(v-bind:flight='flight')
 </template>
 
 <script>
@@ -64,6 +38,7 @@ const moment = require('moment')
 require('moment-duration-format')
 import Peity from 'vue-peity'
 import FlightTrendChart from '../components/FlightTrendChart.vue'
+import FlightCard from '../components/FlightCard.vue'
 import {mapGetters, mapActions} from 'vuex'
 
 export default {
@@ -80,7 +55,8 @@ export default {
   },
   components: {
     Peity,
-    FlightTrendChart
+    FlightTrendChart,
+    FlightCard
   },
   computed: {
     ...mapGetters([

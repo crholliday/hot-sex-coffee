@@ -5,18 +5,7 @@
           .columns
             .column.is-9.is-offset-2
               .box(v-for='todo in todos')
-                article.media
-                  .media-content
-                    h3.title {{ todo.task }}
-                    p.subtitle(v-if='todo.dueDate') Due: {{ todo.dueDate | formatDateHuman}}
-                    small {{ todo.created | formatDateHuman }}
-                    div.tag {{ todo.category }}
-                    div.tag Priority: {{ todo.importance }}
-                    div.tag Status: {{ todo.status }}
-                  .media-right
-                    span.icon.is-medium: a(@click='deleteTodo(todo._id)')
-                       i.fa.fa-check-circle
-              
+                todo-card(v-bind:todo='todo')             
         .column.is-3
           .box
             h3.title.h3 Add a new Todo
@@ -45,11 +34,12 @@
 require('moment-duration-format')
 const config = require('../config')
 import {mapGetters} from 'vuex'
+import TodoCard from '../components/TodoCard.vue'
 
 export default {
   name: 'todos',
   components: {
-
+    TodoCard
   },
   data () {
     return {
