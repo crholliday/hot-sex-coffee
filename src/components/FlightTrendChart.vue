@@ -3,7 +3,7 @@
   .column.is-11.is-offset-1
     .card
       bar-chart(v-bind:chartData='chartData' 
-                v-bind:options='makeChartOptions()' 
+                v-bind:options='chartOptions' 
                 v-bind:height='340', v-bind:width='960' )
 </template>
 
@@ -23,18 +23,38 @@ export default {
   data () {
     return {
       chartData: {},
-      cheapFlightsByEndpoint: []
+      cheapFlightsByEndpoint: [],
+      chartOptions: {}
+    }
+  },
+  computed: {
+    title: function () {
+      return 'Flights from ' + this.origin + ' to ' + this.destination
     }
   },
   methods: {
-    makeChartOptions: function () {
+    loadCheapFlightsByEndpoint: function (origin, destination) {
+      axios.get(config.api_base_url + '/flights-by-endpoints?origin=' + origin + '&destination=' + destination)
+        .then(response => {
+          this.cheapFlightsByEndpoint = response.data
+          this.chartData = this.makeChartData()
+          console.log(this.title)
+          this.chartOptions = this.makeChartOption(this.title)
+        })
+    },
+    makeChartOption: function (title) {
       return {
         responsive: false,
+        title: {
+          display: true,
+          text: title,
+          fontSize: 16
+        },
         scales: {
           yAxes: [{
             gridLines: {
               display: true,
-              color: 'rgba(0,0,0,0.1'
+              color: 'rgba(0,0,0,0.1)'
             },
             ticks: {
               beginAtZero: false
@@ -43,14 +63,7 @@ export default {
         }
       }
     },
-    loadCheapFlightsByEndpoint: function (origin, destination) {
-      axios.get(config.api_base_url + '/flights-by-endpoints?origin=' + origin + '&destination=' + destination)
-        .then(response => {
-          this.cheapFlightsByEndpoint = response.data
-          this.chartData = this.makeChartData(origin, destination)
-        })
-    },
-    makeChartData: function (a, b) {
+    makeChartData: function () {
       let dates = this.cheapFlightsByEndpoint.map(function (a) { return moment(a.created).format('MM/DD/YYYY') })
       let lowPrices = this.cheapFlightsByEndpoint.map(function (a) { return a.low_price })
       let avgPrices = this.cheapFlightsByEndpoint.map(function (a) { return a.avg_price })

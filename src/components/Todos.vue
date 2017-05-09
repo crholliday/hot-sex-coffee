@@ -4,7 +4,7 @@
         .column.is-9
           .columns
             .column.is-9.is-offset-2
-              .box(v-for='todo in todos')
+              .box.todo(v-for='todo in orderBy(todos, "[dueDate, importance]", -1)')
                 todo-card(v-bind:todo='todo')             
         .column.is-3
           .box
@@ -33,8 +33,9 @@
 <script>
 require('moment-duration-format')
 const config = require('../config')
-import {mapGetters} from 'vuex'
+import {mapGetters, mapActions} from 'vuex'
 import TodoCard from '../components/TodoCard.vue'
+import axios from 'axios'
 
 export default {
   name: 'todos',
@@ -43,7 +44,6 @@ export default {
   },
   data () {
     return {
-      todos: [],
       task: '',
       category: '',
       importance: '',
@@ -54,16 +54,14 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'loggedInUser'
+      'loggedInUser',
+      'todos'
     ])
   },
   methods: {
-    loadTodos: function () {
-      this.$http.get(config.api_base_url + '/todos')
-            .then(response => {
-              this.todos = response.data
-            })
-    },
+    ...mapActions([
+      'loadTodos'
+    ]),
     createTodo: function () {
       let todo = {
         task: this.task,
@@ -73,17 +71,11 @@ export default {
         status: this.status,
         user: this.loggedInUser
       }
-      this.$http.post(config.api_base_url + '/todo', todo)
+      axios.post(config.api_base_url + '/todo', todo)
             .then(response => {
               this.loadTodos()
               this.clearTodoForm()
             })
-    },
-    deleteTodo: function (id) {
-      this.$http.delete(config.api_base_url + '/todo/' + id)
-      .then(response => {
-        this.loadTodos()
-      })
     },
     clearTodoForm: function () {
       this.task = ''
@@ -94,7 +86,9 @@ export default {
     }
   },
   created: function () {
-    this.loadTodos()
+    if (!this.todos.length) {
+      this.loadTodos()
+    }
   }
 }
 
@@ -104,6 +98,9 @@ export default {
   .container.todos {
     padding-top: 1.5rem;
   }
+  .box.todo {
+  border-left: 2px inset red;
+}
   
 </style>
 

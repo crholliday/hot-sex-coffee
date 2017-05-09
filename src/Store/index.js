@@ -23,7 +23,7 @@ const DELETE_TODO = 'DELETE_TODO'
 const store = new Vuex.Store({
   state: {
     isLoggedIn: localStorage.getItem('token'),
-    loggedInUser: {},
+    loggedInUser: localStorage.getItem('loggedInUser'),
     distinctRoutes: [],
     cheapFlights: [],
     airlines: [],
@@ -73,6 +73,7 @@ const store = new Vuex.Store({
       axios.post(config.api_base_url + '/login', creds)
         .then(response => {
           localStorage.setItem('token', response.data.token)
+          localStorage.setItem('loggedInUser', JSON.stringify(response.data.user))
           commit(ASSIGN_LOGGED_IN_USER, response.data.user)
           commit(LOGIN_SUCCESS)
           router.push('/')
@@ -80,6 +81,7 @@ const store = new Vuex.Store({
     },
     logout ({commit}) {
       localStorage.removeItem('token')
+      localStorage.removeItem('loggedInUser')
       commit(REMOVE_LOGGED_IN_USER)
       commit(LOGOUT)
       router.push('/login')
@@ -125,6 +127,9 @@ const store = new Vuex.Store({
         .then(response => {
           commit(DELETE_TODO, todo)
         })
+    },
+    loadUser ({state, commit}, user) {
+      commit(ASSIGN_LOGGED_IN_USER, user)
     }
   },
   getters: {
@@ -139,6 +144,9 @@ const store = new Vuex.Store({
     },
     cheapFlights: state => {
       return state.cheapFlights
+    },
+    cheapFlightsByDay: state => {
+      return state.cheapFlightsByDay
     },
     airlines: state => {
       return state.airlines

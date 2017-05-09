@@ -22,6 +22,7 @@
     "vue-peity": "^0.5.0",
     "vue-resource": "^1.2.0",
     "vue-router": "^2.2.0",
+    "vue2-filters": "^0.1.9",
     "vuex": "^2.1.2"
   },
   "devDependencies": {
