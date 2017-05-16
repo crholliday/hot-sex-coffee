@@ -4,7 +4,7 @@
     .subtitle.is-6 Last updated: {{lastUpdated | formatDateHuman}} 
       | | {{ count }} total records
     .columns.is-multiline
-      .column(v-for='flight in flights')
+      .column.is-one-quarter(v-for='flight in flights')
         .box
           article.media          
             .media-left
@@ -15,16 +15,18 @@
                 h3.title.h3 {{flight.departureAirport}} to {{flight.arrivalAirport}}
                 h6.subtitle.h6.gray Average: {{flight.averagePrice | currency}}
                 p: small Created: {{flight.created | formatDateHuman}}
-    .section
+    stock-list
 </template>
 
 <script>
 const config = require('../config')
 const moment = require('moment')
+import StockList from '../components/StockList.vue'
 
 export default {
   name: 'home',
   components: {
+    StockList
   },
   data () {
     return {

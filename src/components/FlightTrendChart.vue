@@ -38,7 +38,6 @@ export default {
         .then(response => {
           this.cheapFlightsByEndpoint = response.data
           this.chartData = this.makeChartData()
-          console.log(this.title)
           this.chartOptions = this.makeChartOption(this.title)
         })
     },
