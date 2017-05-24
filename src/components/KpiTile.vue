@@ -56,7 +56,7 @@ export default {
         .then(response => {
           this.label = this.title ? this.title : response.data.dataset.name
           this.amount = response.data.dataset.data[0][1].toString()
-          this.trend = response.data.dataset.data.map(data => { return data[1] }).toString()
+          this.trend = response.data.dataset.data.reverse().map(data => { return data[1] }).toString()
           this.latest_date = response.data.dataset.newest_available_date
           this.loading = false
         })

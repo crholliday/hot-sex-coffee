@@ -8,6 +8,8 @@
               tr
                 th Depart From
                 th Arrive To
+                th From Date
+                th To Date
                 th From Now
                 th Duration
                 th Is Active
@@ -17,6 +19,8 @@
               tr(v-for='route in routes')
                 td {{ route.departureAirport }}
                 td {{ route.arrivalAirport }}
+                td {{ route.fromDate | formatDate}}
+                td {{ route.toDate | formatDate }}
                 td {{ route.fromNow }}
                 td {{ route.durationDays }}
                 td {{ route.class }}
@@ -31,6 +35,12 @@
             label.label Arrival
             p.control
               input.input(type='text' placeholder='Arrival airport' v-model='arrivalAirport')
+            label.label From Date
+            p.control
+              input.input(type='date' placeholder='From date' v-model='fromDate')
+            label.label To Date
+            p.control
+              input.input(type='date' placeholder='To date' v-model='toDate')
             label.label Duration in Days
             p.control
               input.input(type='text' placeholder='Duration in days' v-model='durationDays')
@@ -57,6 +67,8 @@ export default {
       routes: [],
       arrivalAirport: '',
       class: 'all',
+      fromDate: '',
+      toDate: '',
       departureAirport: '',
       durationDays: 0,
       fromNow: 0
@@ -74,8 +86,10 @@ export default {
         arrivalAirport: this.arrivalAirport,
         class: 'any',
         departureAirport: this.departureAirport,
-        durationDays: this.durationDays,
-        fromNow: this.fromNow,
+        fromDate: this.fromDate,
+        toDate: this.toDate,
+        durationDays: this.durationDays ? this.durationDays : 0,
+        fromNow: this.fromNow ? this.fromNow : 0,
         isActive: true
       }
       this.$http.post(config.api_base_url + '/travel-route', route)
