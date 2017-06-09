@@ -14,7 +14,11 @@
         p.level-item: a.button.is-success(@click='origin = "", destination = ""') All
   .spacer
   .section.news-list
-    .container
+    .container(v-if='!filteredFlights')
+      div
+        i.fa.fa-spinner.fa-spin.fa-3x.fa-fw
+        .sr-only Loading...   
+    .container(v-else)
       flight-trend-chart(v-if='origin && destination' v-bind:origin='origin' v-bind:destination='destination')
       article.media(v-for='flight in filteredFlights')
         .media-left

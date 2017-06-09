@@ -1,7 +1,7 @@
 <template lang="pug">
   .container.routes
     .columns
-        .column.is-9
+        .column.is-9(v-if='routes')
           h3.title.h3 List of Routes
           table.table.is-striped.is-narrow
             thead
@@ -26,6 +26,10 @@
                 td {{ route.class }}
                 td {{ route.isActive }}
                 td: a(@click='deleteRoute(route._id)') remove
+        .column.is-9(v-else)
+          div
+            i.fa.fa-spinner.fa-spin.fa-3x.fa-fw
+            .sr-only Loading...      
         .column.is-3
           .box
             h3.title.h3 Add a new route
