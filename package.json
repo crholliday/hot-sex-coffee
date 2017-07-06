@@ -10,6 +10,7 @@
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
+    "autobahn": "^17.5.2",
     "axios": "^0.15.3",
     "flat": "^2.0.1",
     "flatten": "^1.0.2",

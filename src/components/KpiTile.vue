@@ -9,55 +9,50 @@
         .content.kpi
           h1.title.h1 {{amount | currency}}
           h6.subtitle.h6.gray {{label | truncate(30)}}
-          peity( v-bind:type='"line"' 
-                v-bind:options='{width: 90, fill: false, min: Math.min.apply(trend), max: Math.max.apply(trend)}' 
-                v-bind:data='trend')
-          p: small Last updated: {{latest_date | formatDateHuman}}
+          kpi-spark(v-bind:trendTicker='trendTicker')
+          p: small Last updated: {{latest_date | formatTime}}  
+            a.button.is-link.is-small(v-on:click='loadData')
+              span.icon.is-small
+                i.fa.fa-refresh(aria-hidden='true')
   
 </template>
 
-
 <script>
 import Peity from 'vue-peity'
-import Config from '../config'
+import KpiSpark from '../components/KpiSpark.vue'
 import moment from 'moment'
 import axios from 'axios'
 
 export default {
   name: 'kpi-tile',
-  components: {Peity},
+  components: {Peity, KpiSpark},
   data () {
     return {
       loading: false,
       label: 'Pork Belly',
       amount: '9.56',
       latest_date: '',
-      trend: '5.33, 4.21, 3.09, 3.67, 3.56, 4.06'
+      data: {}
     }
   },
   props: {
-    dataset: {type: String, required: true},
+    ticker: {type: String, required: true},
+    trendTicker: {type: String, required: true},
     title: {type: String}
   },
   methods: {
     loadData: function () {
       this.loading = true
-      let params = {
-        api_key: Config.quandl_api_key,
-        start_date: moment().subtract(1, 'months')
-      }
 
-      let reqConfig = {
-        url: 'https://www.quandl.com/api/v3/datasets/' + this.dataset + '.json',
-        params: params
-      }
+      // Yahoo query language
+      let url = 'https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quote%20where%20symbol%20in%20("' + this.ticker + '")&format=json&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys'
 
-      axios.request(reqConfig)
+      axios.request(url)
         .then(response => {
-          this.label = this.title ? this.title : response.data.dataset.name
-          this.amount = response.data.dataset.data[0][1].toString()
-          this.trend = response.data.dataset.data.reverse().map(data => { return data[1] }).toString()
-          this.latest_date = response.data.dataset.newest_available_date
+          this.data = response.data
+          this.label = this.title ? this.title : response.data.query.results.quote.Name
+          this.amount = response.data.query.results.quote.LastTradePriceOnly.toString()
+          this.latest_date = moment(Date.now())
           this.loading = false
         })
         .catch(function (error) {

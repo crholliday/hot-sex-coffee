@@ -16,17 +16,20 @@
                 h6.subtitle.h6.gray Average: {{flight.averagePrice | currency}}
                 p: small Created: {{flight.created | formatDateHuman}}
     stock-list
+    bitcoin-live
 </template>
 
 <script>
 const config = require('../config')
 const moment = require('moment')
 import StockList from '../components/StockList.vue'
+import BitcoinLive from '../components/BitCoinLive.vue'
 
 export default {
   name: 'home',
   components: {
-    StockList
+    StockList,
+    BitcoinLive
   },
   data () {
     return {
