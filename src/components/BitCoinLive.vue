@@ -1,20 +1,23 @@
 <template lang="pug">
-.column.is-one-quarter
-  .box
-    article.media
-      div(v-if='loading')
-        i.fa.fa-spinner.fa-spin.fa-3x.fa-fw
-        .sr-only Loading...
-      .media-content(v-else)
-        .content.kpi
-          transition(name='fade' mode='out-in')
-            h1.title.h1(v-bind:key='amount') {{ amount | currency}}
-          h6.subtitle.h6.gray Gemini Bitcoin
-          p {{ btc_owned }} owned | {{ btc_owned_value | currency }}
-          p: small last tick:  {{ latest_date | formatTime}}
-            a.button.is-link.is-small(v-on:click='loadData')
-              span.icon.is-small
-                i.fa.fa-refresh(aria-hidden='true')
+.container
+  .columns.is-multiline
+    .column.is-one-quarter
+      .box
+        article.media
+          div(v-if='loading')
+            i.fa.fa-spinner.fa-spin.fa-3x.fa-fw
+            .sr-only Loading...
+          a.media-content(v-else @click='$router.push({name: "Crypto"})')
+            .content.kpi
+              transition(name='fade' mode='out-in')
+                h1.title.h1(v-bind:key='amount') {{ amount | currency}}
+              h6.subtitle.h6.gray Gemini Bitcoin
+              p {{ btc_owned }} owned <br />
+                span {{ pct_change }} ({{ btc_owned_value | currency }})            
+              p: small last tick:  {{ latest_date | formatTime}}
+                a.button.is-link.is-small(v-on:click='loadData')
+                  span.icon.is-small
+                    i.fa.fa-refresh(aria-hidden='true')
   
 </template>
 
@@ -33,12 +36,17 @@ export default {
       amount: '0.00',
       latest_date: '',
       message: '',
-      btc_owned: 0.00
+      btc_owned: 0.00,
+      owned_cost: 1800.00,
+      total_fee: 0.0
     }
   },
   computed: {
     btc_owned_value: function () {
-      return this.btc_owned * this.amount
+      return (this.btc_owned * this.amount) - this.owned_cost
+    },
+    pct_change: function () {
+      return (100 * (this.btc_owned_value / this.owned_cost)).toFixed(1) + '%'
     }
   },
   methods: {
@@ -65,11 +73,12 @@ export default {
 
       socket.onclose = function (event) {
         console.log('Disconnected from Gemini API.')
+        setTimeout(function () {
+          vm.loadData()
+        }, 1500)
       }
     },
-    getBtc: function () {
-      this.loading = true
-
+/*     getBtc: function () {
       // Block explorer api - https://blockexplorer.com/api-ref
       let url = 'https://blockexplorer.com/api/addr/' + config.btc_address
 
@@ -77,7 +86,19 @@ export default {
         .then(response => {
           this.data = response.data
           this.btc_owned = response.data.balance
-          this.loading = false
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
+    }, */
+    getCryptoTotals: function () {
+      axios.request(config.api_base_url + '/crypto-totals')
+        .then(response => {
+          const index = response.data.findIndex(item => item.currency === 'BTC')
+          let data = response.data[index]
+          this.btc_owned = data.totalCrypto - data.totalFee
+          this.total_fee = data.totalFee
+          this.total_cost = data.owned_cost
         })
         .catch(function (error) {
           console.log(error)
@@ -86,7 +107,7 @@ export default {
   },
   mounted () {
     this.loadData()
-    this.getBtc()
+    this.getCryptoTotals()
   }
 }
 </script>

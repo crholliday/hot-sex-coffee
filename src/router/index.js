@@ -7,6 +7,7 @@ import Home from 'components/Home'
 import Routes from 'components/Routes'
 import Register from 'components/Register'
 import Login from 'components/Login'
+import Crypto from 'components/Crypto'
 import store from '../Store'
 
 Vue.use(Router)
@@ -79,6 +80,16 @@ export default new Router({
       meta: {
         titleText: 'Flight List',
         subtitleText: 'Check flight fares...'
+      }
+    },
+    {
+      path: '/crypto',
+      name: 'Crypto',
+      component: Crypto,
+      beforeEnter: requireAuth,
+      meta: {
+        titleText: 'Crypto',
+        subtitleText: 'Crypto currency transactions...'
       }
     },
     {
