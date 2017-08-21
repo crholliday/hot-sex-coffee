@@ -1,8 +1,8 @@
 <template lang="pug">
-.container
+.container.bitcoin
   .columns.is-multiline
     .column.is-one-quarter
-      .box
+      .box.bloom
         article.media
           div(v-if='loading')
             i.fa.fa-spinner.fa-spin.fa-3x.fa-fw
@@ -15,7 +15,7 @@
               p {{ btc_owned }} owned <br />
                 span {{ pct_change }} ({{ btc_owned_value | currency }})            
               p: small last tick:  {{ latest_date | formatTime}}
-                a.button.is-link.is-small(v-on:click='loadData')
+                a.button.is-link.is-small.load(v-on:click='loadData')
                   span.icon.is-small
                     i.fa.fa-refresh(aria-hidden='true')
   
@@ -96,6 +96,7 @@ export default {
         .then(response => {
           const index = response.data.findIndex(item => item.currency === 'BTC')
           let data = response.data[index]
+          this.owned_cost = data.totalCost
           this.btc_owned = data.totalCrypto - data.totalFee
           this.total_fee = data.totalFee
           this.total_cost = data.owned_cost
@@ -113,6 +114,9 @@ export default {
 </script>
 
 <style>
+.container.bitcoin {
+  padding-bottom: 20px;
+}
 .content.kpi {
   align-content: center;
   text-align: center;
@@ -128,6 +132,21 @@ export default {
 /* .slide-fade-leave-active for <2.1.8 */ {
   /*opacity: 0;*/
   background-color: transparent;
+}
+
+/* The slow way */
+.bloom{
+  box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+/* Transition to a bigger shadow on hover */
+.bloom:hover {
+  box-shadow: 0 5px 16px rgba(0,0,0,0.3);
+}
+
+.load {
+  z-index: 1000
 }
 
 </style>

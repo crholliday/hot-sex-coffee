@@ -1,6 +1,6 @@
 <template lang="pug">
 .column.is-one-quarter
-  .box
+  .box.kpi
     article.media
       div(v-if='loading')
         i.fa.fa-spinner.fa-spin.fa-3x.fa-fw
@@ -72,6 +72,5 @@ export default {
   align-content: center;
   text-align: center;
 }
-
 </style>
 
