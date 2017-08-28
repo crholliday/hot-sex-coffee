@@ -10,10 +10,10 @@
           a.media-content(v-else @click='$router.push({name: "Crypto"})')
             .content.kpi
               transition(name='fade' mode='out-in')
-                h1.title.h1(v-bind:key='amount') {{ amount | currency}}
-              h6.subtitle.h6.gray Gemini Bitcoin
-              p {{ btc_owned }} owned <br />
-                span {{ pct_change }} ({{ btc_owned_value | currency }})            
+                h1.title.h1(v-bind:key='amount') ${{ amount }}
+              h6.subtitle.h6.gray Bitfinex IOTA
+              p {{ iot_owned }} owned <br />
+                span {{ pct_change }} ({{ iot_owned_value | currency }})            
               p: small last tick:  {{ latest_date | formatTime}}
                 a.button.is-link.is-small.load(v-on:click='loadData')
                   span.icon.is-small
@@ -28,78 +28,85 @@ import axios from 'axios'
 const config = require('../config')
 
 export default {
-  name: 'bitcoin-live',
+  name: 'iota-live',
   data () {
     return {
       loading: false,
-      label: 'Bitcoin',
+      label: 'IOTA',
       amount: '0.00',
       latest_date: '',
       message: '',
-      btc_owned: 0.00,
+      iot_owned: 0.00,
       owned_cost: 1800.00,
       total_fee: 0.0
     }
   },
   computed: {
-    btc_owned_value: function () {
-      return (this.btc_owned * this.amount) - this.owned_cost
+    iot_owned_value: function () {
+      return (this.iot_owned * this.amount) - this.owned_cost
     },
     pct_change: function () {
-      return (100 * (this.btc_owned_value / this.owned_cost)).toFixed(1) + '%'
+      return (100 * (this.iot_owned_value / this.owned_cost)).toFixed(1) + '%'
     }
   },
   methods: {
     loadData: function () {
-      var socket = new WebSocket('wss://api.gemini.com/v1/marketdata/btcusd')
+      var socket = new WebSocket('wss://api.bitfinex.com/ws/2')
       const vm = this
 
       socket.onerror = function (error) {
-        console.log('The error is: ')
-        console.log(error)
+        console.log('WebSocket Error: ' + error)
       }
 
+      let msg = ({
+        event: 'subscribe',
+        channel: 'trades',
+        symbol: 'tIOTUSD'
+      })
+
       socket.onopen = function (event) {
-        console.log('Connected to Gemini API.')
+        console.log('Connected to Bitfinex')
+        socket.send(JSON.stringify(msg))
       }
 
       socket.onmessage = function (event) {
         let data = JSON.parse(event.data)
-        if (data.events[0].type === 'trade') {
+
+        if (data.length === 3 && data[1] !== 'hb') {
+          console.log(data)
           vm.message = data
-          vm.amount = data.events[0].price
+          vm.amount = data[2][3]
           vm.latest_date = moment(Date.now())
         }
       }
 
       socket.onclose = function (event) {
-        console.log('Disconnected from Gemini API.')
-        console.log(event)
-        // setTimeout(function () {
-        //   vm.loadData()
-        // }, 1500)
+        console.log('Disconnected from Bitfinex')
+        setTimeout(function () {
+          vm.loadData()
+        }, 1500)
       }
     },
-/*     getBtc: function () {
-      // Block explorer api - https://blockexplorer.com/api-ref
-      let url = 'https://blockexplorer.com/api/addr/' + config.btc_address
+    // getIot: function () {
+    //   let url = 'https://api.bitfinex.com/v1/pubticker/iotusd'
 
-      axios.request(url)
-        .then(response => {
-          this.data = response.data
-          this.btc_owned = response.data.balance
-        })
-        .catch(function (error) {
-          console.log(error)
-        })
-    }, */
+    //   axios.get(url)
+    //     .then(response => {
+    //       this.data = response.data
+    //       console.log(response)
+    //       this.amount = response.data.last_price
+    //     })
+    //     .catch(function (error) {
+    //       console.log(error)
+    //     })
+    // },
     getCryptoTotals: function () {
       axios.request(config.api_base_url + '/crypto-totals')
         .then(response => {
-          const index = response.data.findIndex(item => item.currency === 'BTC')
+          const index = response.data.findIndex(item => item.currency === 'IOT')
           let data = response.data[index]
           this.owned_cost = data.totalCost
-          this.btc_owned = data.totalCrypto - data.totalFee
+          this.iot_owned = data.totalCrypto - data.totalFee
           this.total_fee = data.totalFee
           this.total_cost = data.owned_cost
         })
@@ -110,6 +117,7 @@ export default {
   },
   mounted () {
     this.loadData()
+    // this.getIot()
     this.getCryptoTotals()
   }
 }
