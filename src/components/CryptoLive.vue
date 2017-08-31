@@ -21,6 +21,7 @@
 <script>
 import moment from 'moment'
 import axios from 'axios'
+import {mapActions} from 'vuex'
 const config = require('../config')
 
 export default {
@@ -33,7 +34,8 @@ export default {
       message: '',
       currency_owned: 0.00,
       owned_cost: 1800.00,
-      total_fee: 0.0
+      total_fee: 0.0,
+      channel_id: null
     }
   },
   props: {
@@ -53,12 +55,15 @@ export default {
     }
   },
   methods: {
+    ...mapActions([
+      'upsertCrypto'
+    ]),
     loadData: function () {
       var socket = new WebSocket('wss://api.bitfinex.com/ws/2')
       const vm = this
 
       socket.onerror = function (error) {
-        console.log('WebSocket Error: ' + error)
+        console.log('WebSocket Error: ' + JSON.stringify(error))
       }
 
       let msg = ({
@@ -68,17 +73,21 @@ export default {
       })
 
       socket.onopen = function (event) {
-        console.log('Connected to Bitfinex')
+        console.log('Connected to Bitfinex for ' + vm.currency)
         socket.send(JSON.stringify(msg))
       }
 
       socket.onmessage = function (event) {
         let data = JSON.parse(event.data)
+        if (data.event === 'subscribed') {
+          vm.channel_id = data.chanId
+        }
 
         if (data.length === 3 && data[1] !== 'hb') {
           vm.message = data
           vm.amount = data[2][3]
           vm.latest_date = moment(Date.now())
+          vm.upsertCrypto({channelID: vm.channel_id, amount: vm.currency_owned_value})
         }
       }
 
