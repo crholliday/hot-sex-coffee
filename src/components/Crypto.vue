@@ -11,6 +11,7 @@
                 th Amount
                 th Fee
                 th Cost
+                th Nominal Rate
                 th Transaction
                 th Edit
             tbody
@@ -20,6 +21,7 @@
                 td {{ crypto.amount }}
                 td {{ crypto.fee }}
                 td {{ crypto.cost | currency }}
+                td {{ divide(crypto.cost, crypto.amount) | currency}}
                 td {{ crypto.txn | truncate(20)}}
                 td: a(@click='deleteCrypto(crypto._id)') remove
         .column.is-9(v-else)
@@ -99,6 +101,9 @@ export default {
       .then(response => {
         this.loadCryptos()
       })
+    },
+    divide: function (e, d) {
+      return e / d
     }
   },
   created: function () {

@@ -2,8 +2,8 @@
 .container.stocks
   p.title.is-2 Crypto List <span class='total'>Total Value: ( {{cryptoTotal | currency}} )</span>
   .columns.is-multiline
-      CryptoLive(v-bind:ticker='"tIOTUSD"' v-bind:title='"IOTA"' v-bind:currency='"IOT"')
       CryptoLive(v-bind:ticker='"tBTCUSD"' v-bind:title='"Bitcoin"' v-bind:currency='"BTC"' )
+      CryptoLive(v-bind:ticker='"tIOTUSD"' v-bind:title='"IOTA"' v-bind:currency='"IOT"')      
 </template>
 
 <script>

@@ -37,7 +37,7 @@ const mutations = {
     todos.splice(todos.indexOf(todo), 1)
   },
   [types.CRYPTO_UPSERT] (state, crypto) {
-    var index = state.cryptos.findIndex(i => i.channelID === crypto.channelID)
+    var index = state.cryptos.findIndex(i => i.currency === crypto.currency)
 
     if (index !== -1) {
       state.cryptos[index].amount = crypto.amount

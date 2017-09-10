@@ -12,7 +12,8 @@
           h6.subtitle.h6.gray {{title}}
           p {{ currency_owned }} owned <br />
             span {{ pct_change }} ({{ currency_owned_gain | currency }}) <br />
-            span.has-text-success Total: {{ currency_owned_value | currency }}
+            span.has-text-success Total: {{ currency_owned_value | currency }} <br />
+            span.has-text-success Cost: {{ owned_cost | currency }} 
           p: small last tick:  {{ latest_date | formatTime}}
   
 </template>
@@ -51,7 +52,7 @@ export default {
       return this.currency_owned * this.amount
     },
     pct_change: function () {
-      return (100 * (this.currency_owned_value / this.owned_cost)).toFixed(1) + '%'
+      return (100 * (this.currency_owned_gain / this.owned_cost)).toFixed(1) + '%'
     }
   },
   methods: {
@@ -87,7 +88,7 @@ export default {
           vm.message = data
           vm.amount = data[2][3]
           vm.latest_date = moment(Date.now())
-          vm.upsertCrypto({channelID: vm.channel_id, amount: vm.currency_owned_value})
+          vm.upsertCrypto({currency: vm.currency, amount: vm.currency_owned_value})
         }
       }
 
