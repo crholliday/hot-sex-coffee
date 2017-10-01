@@ -64,7 +64,7 @@ Vue.filter('currency', function (value, decimals) {
 Vue.use(VueResource)
 Vue.use(VeeValidate)
 Vue.use(Vue2Filters)
-Vue.use(VueSocketio, 'http://localhost:3000')
+Vue.use(VueSocketio, 'http://45.33.28.15:3000')
 
 /* eslint-disable no-new */
 new Vue({

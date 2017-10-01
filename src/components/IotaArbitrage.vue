@@ -13,7 +13,7 @@
       .heading.is-size-6 BTC -> MIOTA
       .title {{btc_per_miota | currency('$', 8)}}
       .heading.is-size-6 USD -> MIOTA
-      .title {{usd_per_miota | currency('$', 2)}}
+      .title {{usd_per_miota | currency('$', 4)}}
     .column.is-one-half
       .subtitle.is-size-4 {{amount | currency}} -> MIOTA
       .title {{usd_iot | currency}}

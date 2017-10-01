@@ -44,7 +44,7 @@ export default {
       filter: 'all', // all, non-zero
       retries: 0,
       msgs: [],
-      socketConnected: this.$socket.connected
+      socketConnected: false
     }
   },
   sockets: {
@@ -54,6 +54,7 @@ export default {
     tx: function (val) {
       let data = (JSON.parse(event.data.slice(2)))
       let vm = this
+      vm.socketConnected = true
       if (this.filter === 'non-zero') {
         if (data[1].amount !== '0') {
           vm.msgs.unshift(data[1])
@@ -67,6 +68,7 @@ export default {
     error: function (err) {
       if (this.retries >= NumberOfRetries) {
         this.$socket.disconnect()
+        this.socketConnected = false
         console.log('Disconnecting from IOTA websocket after 20 errors...')
       } else {
         this.retries += 1
@@ -74,6 +76,7 @@ export default {
       }
     },
     connect_error: function (err) {
+      this.socketConnected = false
       if (this.retries >= NumberOfRetries) {
         this.$socket.disconnect()
         console.log('Disconnecting from IOTA websocket after 20 errors...')
