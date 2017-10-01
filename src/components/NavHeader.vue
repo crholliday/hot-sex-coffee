@@ -3,7 +3,7 @@
     nav.nav.has-shadow
         .container
             .nav-left
-                a.nav-item
+                router-link.nav-item(to="/")
                     i.fa.fa-fire.is-red(style="font-size: 28px; color: red;") &nbsp; Hot Sex Coffee
             .nav-center
                 a.nav-item(href="https://github.com/crholliday")
@@ -29,6 +29,10 @@
                 router-link.nav-item.is-tab(to="/news") 
                     i.fa.fa-file-text-o(style="font-size: 16px") &nbsp;
                     span News
+                router-link.nav-item.is-tab(to="/iota") 
+                    img(src="../assets/iota-logo.svg" alt="Image Title" width="16" height="16")
+                    | &nbsp;
+                    span IOTA 
                 router-link.nav-item.is-tab(to="/todos") 
                     i.fa.fa-tasks(style="font-size: 16px") &nbsp;
                     span Todos

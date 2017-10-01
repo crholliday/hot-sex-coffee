@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import News from 'components/News'
 import Flights from 'components/Flights'
+import Iota from 'components/Iota'
 import Todos from 'components/Todos'
 import Home from 'components/Home'
 import Routes from 'components/Routes'
@@ -42,6 +43,15 @@ export default new Router({
       meta: {
         titleText: 'News List',
         subtitleText: 'News from everywhere...'
+      }
+    },
+    {
+      path: '/iota',
+      name: 'Iota',
+      component: Iota,
+      meta: {
+        titleText: 'Iota Tracking',
+        subtitleText: 'Stats, commercials and more...'
       }
     },
     {

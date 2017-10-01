@@ -8,22 +8,23 @@
       a.media-content(v-else @click='$router.push({name: "Crypto"})')
         .content.kpi
           transition(name='fade' mode='out-in')
-            h1.title.h1(v-bind:key='amount') ${{ amount }}
+            h1.title.is-3(v-bind:key='amount') {{ amount | currency('$', 4) }}
           h6.subtitle.h6.gray {{title}}
-          p {{ currency_owned }} owned <br />
-            span {{ pct_change }} ({{ currency_owned_gain | currency }}) <br />
-            span.has-text-success Total: {{ currency_owned_value | currency }} <br />
-            span.has-text-success Cost: {{ owned_cost | currency }} 
-          p: small last tick:  {{ latest_date | formatTime}}
+          .info
+            p {{ currency_owned }} owned <br />
+              span {{ pct_change }} ({{ currency_owned_gain | currency }}) <br />
+              span.has-text-success Total: {{ currency_owned_value | currency }} <br />
+              span.has-text-success Cost: {{ owned_cost | currency }} 
+            p: small last tick:  {{ latest_date | formatTime}}
   
 </template>
-
 
 <script>
 import moment from 'moment'
 import axios from 'axios'
 import {mapActions} from 'vuex'
 const config = require('../config')
+const NumberOfRetries = 20
 
 export default {
   name: 'crypto-live',
@@ -36,7 +37,8 @@ export default {
       currency_owned: 0.00,
       owned_cost: 1800.00,
       total_fee: 0.0,
-      channel_id: null
+      channel_id: null,
+      retries: 0
     }
   },
   props: {
@@ -63,8 +65,14 @@ export default {
       var socket = new WebSocket('wss://api.bitfinex.com/ws/2')
       const vm = this
 
-      socket.onerror = function (error) {
-        console.log('WebSocket Error: ' + JSON.stringify(error))
+      socket.onerror = function (err) {
+        if (this.retries >= NumberOfRetries) {
+          socket.disconnect()
+          console.log('Disconnecting from Bitfinex CryptoLive websocket after 20 errors...')
+        } else {
+          this.retries += 1
+          console.error('Error with he Bitfinex CryptoLive websocket: ', err)
+        }
       }
 
       let msg = ({
@@ -74,7 +82,7 @@ export default {
       })
 
       socket.onopen = function (event) {
-        console.log('Connected to Bitfinex for ' + vm.currency)
+        console.log('Connected to Bitfinex for CryptoLive: ' + vm.currency)
         socket.send(JSON.stringify(msg))
       }
 
@@ -93,10 +101,12 @@ export default {
       }
 
       socket.onclose = function (event) {
-        console.log('Disconnected from Bitfinex')
-        setTimeout(function () {
-          vm.loadData()
-        }, 1500)
+        console.log('Disconnected from Bitfinex CryptoLive')
+        if (vm.retries <= NumberOfRetries) {
+          setTimeout(function () {
+            vm.loadData()
+          }, 1500)
+        }
       }
     },
     getCryptoTotals: function () {
@@ -122,6 +132,9 @@ export default {
 </script>
 
 <style>
+.info {
+  color: gray;
+}
 .container.bitcoin {
   padding-bottom: 20px;
 }
@@ -133,19 +146,18 @@ export default {
 /* Enter and leave animations can use different */
 /* durations and timing functions.              */
 .fade-enter-active {
-  transition: all .5s ease;
-  background-color:lightgreen;
+  transition: text-shadow .5s ease-in-out;
 }
 .fade-enter, .fade-leave-to
 /* .slide-fade-leave-active for <2.1.8 */ {
   /*opacity: 0;*/
-  background-color: transparent;
+  text-shadow: 0 0 3px lightgreen;
 }
 
 /* The slow way */
 .bloom{
   box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-  transition: box-shadow 0.2s ease-in-out;
+  transition: box-shadow 0.3s ease-in-out;
 }
 
 /* Transition to a bigger shadow on hover */

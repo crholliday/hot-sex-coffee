@@ -8,12 +8,12 @@
         .box
           article.media          
             .media-left
-              p.title.is-3.green {{flight.price | currency}} 
+              p.title.green {{flight.price | currency}} 
               span.tag.is-primary(v-if='isNew(flight.created)') New!
             .media-content 
               .content 
-                h3.title.h3 {{flight.departureAirport}} to {{flight.arrivalAirport}}
-                h6.subtitle.h6.gray Average: {{flight.averagePrice | currency}}
+                h4.title.is-4 {{flight.departureAirport}} to {{flight.arrivalAirport}}
+                h5.subtitle.is-6.gray Average: {{flight.averagePrice | currency}}
                 p: small Created: {{flight.created | formatDateHuman}}
     stock-list
     crypto-list
@@ -66,7 +66,7 @@ export default {
     color: gray;
   }
 
-  .title.is-3.green {
+  .title.green {
     color: green;
     font-weight: 500;
   }

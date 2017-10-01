@@ -8,6 +8,7 @@ import moment from 'moment'
 import VeeValidate from 'vee-validate'
 import store from './Store'
 import Vue2Filters from 'vue2-filters'
+import VueSocketio from 'vue-socket.io'
 
 const digitsRE = /(\d{3})(?=\d)/g
 
@@ -63,6 +64,7 @@ Vue.filter('currency', function (value, decimals) {
 Vue.use(VueResource)
 Vue.use(VeeValidate)
 Vue.use(Vue2Filters)
+Vue.use(VueSocketio, 'http://localhost:3000')
 
 /* eslint-disable no-new */
 new Vue({
