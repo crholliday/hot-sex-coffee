@@ -1,6 +1,6 @@
 <template lang="pug">
 .box.iota
-  ConnectedButton(:connected='socketConnected')
+  ConnectedButton(:connected='iotaSocketConnected')
   .title Current Transactions
   .content
     nav.level
@@ -30,8 +30,9 @@
 
 <script>
 import moment from 'moment'
-const NumberOfRetries = 20
+// const NumberOfRetries = 20
 import ConnectedButton from './ConnectedButton'
+import {mapGetters} from 'vuex'
 
 export default {
   name: 'iota-socket',
@@ -47,46 +48,50 @@ export default {
       socketConnected: false
     }
   },
-  sockets: {
-    connect: function () {
-      console.log('Connected to IOTA websocket')
-    },
-    tx: function (val) {
-      let data = (JSON.parse(event.data.slice(2)))
-      let vm = this
-      vm.socketConnected = true
-      if (this.filter === 'non-zero') {
-        if (data[1].amount !== '0') {
-          vm.msgs.unshift(data[1])
-        }
-      } else {
-        vm.msgs.unshift(data[1])
-      }
+  // sockets: {
+  //   connect: function () {
+  //     console.log('Connected to IOTA websocket')
+  //   },
+  //   tx: function (val) {
+  //     let data = (JSON.parse(event.data.slice(2)))
+  //     let vm = this
+  //     vm.socketConnected = true
+  //     if (this.filter === 'non-zero') {
+  //       if (data[1].amount !== '0') {
+  //         vm.msgs.unshift(data[1])
+  //       }
+  //     } else {
+  //       vm.msgs.unshift(data[1])
+  //     }
 
-      this.msgs.length > 10 ? this.msgs.pop() : this.msgs
-    },
-    error: function (err) {
-      if (this.retries >= NumberOfRetries) {
-        this.$socket.disconnect()
-        this.socketConnected = false
-        console.log('Disconnecting from IOTA websocket after 20 errors...')
-      } else {
-        this.retries += 1
-        console.error('Error with he IOTA websocket: ', err)
-      }
-    },
-    connect_error: function (err) {
-      this.socketConnected = false
-      if (this.retries >= NumberOfRetries) {
-        this.$socket.disconnect()
-        console.log('Disconnecting from IOTA websocket after 20 errors...')
-      } else {
-        this.retries += 1
-        console.error('Error connecting to IOTA websocket: ', err)
-      }
-    }
-  },
+  //     this.msgs.length > 10 ? this.msgs.pop() : this.msgs
+  //   },
+  //   error: function (err) {
+  //     if (this.retries >= NumberOfRetries) {
+  //       this.$socket.disconnect()
+  //       this.socketConnected = false
+  //       console.log('Disconnecting from IOTA websocket after 20 errors...')
+  //     } else {
+  //       this.retries += 1
+  //       console.error('Error with he IOTA websocket: ', err)
+  //     }
+  //   },
+  //   connect_error: function (err) {
+  //     this.socketConnected = false
+  //     if (this.retries >= NumberOfRetries) {
+  //       this.$socket.disconnect()
+  //       console.log('Disconnecting from IOTA websocket after 20 errors...')
+  //     } else {
+  //       this.retries += 1
+  //       console.error('Error connecting to IOTA websocket: ', err)
+  //     }
+  //   }
+  // },
   computed: {
+    ...mapGetters([
+      'iotaTransaction',
+      'iotaSocketConnected'
+    ]),
     filteredTransactions: function () {
       if (this.filter === 'non-zero') {
         return this.msgs.filter(function (msg) {
@@ -104,6 +109,20 @@ export default {
   methods: {
     getDate: function (dateString) {
       return moment.unix(dateString)
+    }
+  },
+  watch: {
+    iotaTransaction: function (val) {
+      let vm = this
+      if (vm.filter === 'non-zero') {
+        if (val.amount !== '0') {
+          vm.msgs.unshift(val)
+        }
+      } else {
+        vm.msgs.unshift(val)
+      }
+
+      vm.msgs.length > 10 ? vm.msgs.pop() : vm.msgs
     }
   },
   mounted () {

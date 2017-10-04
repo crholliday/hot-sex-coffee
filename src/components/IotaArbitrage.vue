@@ -1,28 +1,32 @@
 <template lang="pug">
 .content.iota
-  ConnectedButton(:connected='socketConnected')
+  ConnectedButton(:connected='bitfinexWebSocketConnected')
   .title Arbitrage
   .box.tx
      .control.has-icons-left
        input.input.is-medium.is-success(type='number' placeholder='amount' v-model='amount')
        .icon.is-small.is-left $
   .columns
-    .column.is-one-half
+    .column.is-5
       .heading.is-size-6 USD -> BTC
       .title {{usd_per_btc | currency}}
       .heading.is-size-6 BTC -> MIOTA
       .title {{btc_per_miota | currency('$', 8)}}
       .heading.is-size-6 USD -> MIOTA
       .title {{usd_per_miota | currency('$', 4)}}
-    .column.is-one-half
+    .column.is-7
       .subtitle.is-size-4 {{amount | currency}} -> MIOTA
-      .title {{usd_iot | currency}}
+      .title {{usd_iot | currency('')}} MI
       p
       .subtitle.is-size-4 {{amount | currency}} -> BTC -> MIOTA
-      .title {{usd_btc_iot | currency}}
-    
-      
-      
+      .title {{usd_btc_iot | currency('')}} MI
+      .box.tx
+        .heading.is-size-6 Scenario
+        .control.has-icons-left
+          input.input.is-medium(type='number' placeholder='BTC @ price' v-model='btcBoughtPrice')
+          .icon.is-small.is-left $
+        .subtitle.is-size-4 {{amount | currency}} -> BTC -> MIOTA
+        .title {{scenario_iot | currency('')}} MI
   
 </template>
 
@@ -31,6 +35,8 @@
 import moment from 'moment'
 import ConnectedButton from './ConnectedButton'
 const NumberOfRetries = 20
+import {mapGetters} from 'vuex'
+
 // const config = require('../config')
 
 /* Todo
@@ -40,6 +46,8 @@ Move more stuff to config
 Links on Txs
 Modal for disconnected services, tx details, etc
 Figure out how to pause tx list
+Add multi-currency swaps to my trades
+
 */
 
 export default {
@@ -56,18 +64,30 @@ export default {
       usd_per_miota: 0,
       msg: {},
       retries: 0,
-      socketConnected: false
+      socketConnected: false,
+      btcBoughtPrice: 0
     }
   },
   components: {
     ConnectedButton
   },
   computed: {
+    ...mapGetters([
+      'bitfinexTrade',
+      'bitfinexWebSocketConnected',
+      'bitfinexWebSocketError',
+      'getBtcUsdChannel',
+      'getIotUsdChannel',
+      'getIotBtcChannel'
+    ]),
     usd_btc_iot: function () {
       return this.amount / this.usd_per_btc / this.btc_per_miota
     },
     usd_iot: function () {
       return this.amount / this.usd_per_miota
+    },
+    scenario_iot: function () {
+      return this.amount / this.btcBoughtPrice / this.btc_per_miota
     }
   },
   methods: {
@@ -151,8 +171,23 @@ export default {
       }
     }
   },
+  watch: {
+    bitfinexTrade: function (data) {
+      let vm = this
+      if (data.length === 3 && data[1] !== 'hb') {
+        vm.message = data
+        if (data[0] === vm.getBtcUsdChannel) {
+          vm.usd_per_btc = data[2][3]
+        } else if (data[0] === vm.getIotBtcChannel) {
+          vm.btc_per_miota = data[2][3]
+        } else if (data[0] === vm.getIotUsdChannel) {
+          vm.usd_per_miota = data[2][3]
+        }
+      }
+    }
+  },
   mounted () {
-    this.loadData()
+    // this.loadData()
   }
 }
 </script>

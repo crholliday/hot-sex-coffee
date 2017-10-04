@@ -22,7 +22,7 @@
 <script>
 import moment from 'moment'
 import axios from 'axios'
-import {mapActions} from 'vuex'
+import {mapActions, mapGetters} from 'vuex'
 const config = require('../config')
 const NumberOfRetries = 20
 
@@ -31,7 +31,7 @@ export default {
   data () {
     return {
       loading: false,
-      amount: '0.00',
+      amount: this.get_amount,
       latest_date: '',
       message: '',
       currency_owned: 0.00,
@@ -42,11 +42,18 @@ export default {
     }
   },
   props: {
-    ticker: {type: String, required: true},
     title: {type: String, required: true},
     currency: {type: String, required: true}
   },
   computed: {
+    ...mapGetters([
+      'bitfinexTrade',
+      'bitfinexTradeByChannel',
+      'bitfinexWebSocketConnected',
+      'bitfinexWebSocketError',
+      'getBtcUsdChannel',
+      'getIotUsdChannel'
+    ]),
     currency_owned_gain: function () {
       return (this.currency_owned * this.amount) - this.owned_cost
     },
@@ -55,6 +62,9 @@ export default {
     },
     pct_change: function () {
       return (100 * (this.currency_owned_gain / this.owned_cost)).toFixed(1) + '%'
+    },
+    get_amount: function () {
+      return this.$store.getters.bitfinexTradeByChannel(this.channel_id)[2][3]
     }
   },
   methods: {
@@ -109,6 +119,16 @@ export default {
         }
       }
     },
+    getChannelId: function () {
+      switch (this.currency) {
+        case 'BTC':
+          this.channel_id = this.getBtcUsdChannel
+          break
+        case 'IOT':
+          this.channel_id = this.getIotUsdChannel
+          break
+      }
+    },
     getCryptoTotals: function () {
       axios.request(config.api_base_url + '/crypto-totals')
         .then(response => {
@@ -124,8 +144,21 @@ export default {
         })
     }
   },
+  watch: {
+    bitfinexTrade: function (data) {
+      let vm = this
+      if (data.length === 3 && data[1] !== 'hb') {
+        if (data[0] === vm.channel_id) {
+          vm.message = data
+          vm.amount = data[2][3]
+          vm.latest_date = moment(Date.now())
+          vm.upsertCrypto({currency: vm.currency, amount: vm.currency_owned_value})
+        }
+      }
+    }
+  },
   mounted () {
-    this.loadData()
+    this.getChannelId()
     this.getCryptoTotals()
   }
 }

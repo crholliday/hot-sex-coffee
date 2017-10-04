@@ -72,6 +72,27 @@ const actions = {
     // crypto = {channelID: 123, amount: 234.56}
     commit(types.CRYPTO_UPSERT, crypto)
     commit(types.CRYPTO_GET_TOTAL)
+  },
+  socket_tx ({state, commit}, msg) {
+    commit(types.SOCKET_TX, msg)
+  },
+  bitfinexTrade ({state, commit}, msg) {
+    commit(types.BITFINEX_TRADE, msg)
+  },
+  bitfinexWebSocketConnected ({state, commit}, msg) {
+    commit(types.BITFINEX_WEBSOCKET_CONNECTED, msg)
+  },
+  bitfinexWebSocketErro ({state, commit}, msg) {
+    commit(types.BITFINEX_WEBSOCKET_ERROR, msg)
+  },
+  setBtcUsdChannel ({state, commit}, msg) {
+    commit(types.SET_BTC_USD_CHANNEL, msg)
+  },
+  setIotUsdChannel ({state, commit}, msg) {
+    commit(types.SET_IOTA_USD_CHANNEL, msg)
+  },
+  setIotBtcChannel ({state, commit}, msg) {
+    commit(types.SET_IOTA_BTC_CHANNEL, msg)
   }
 }
 

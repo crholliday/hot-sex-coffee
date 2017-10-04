@@ -49,6 +49,7 @@ export default new Router({
       path: '/iota',
       name: 'Iota',
       component: Iota,
+      beforeEnter: requireAuth,
       meta: {
         titleText: 'Iota Tracking',
         subtitleText: 'Stats, commercials and more...'

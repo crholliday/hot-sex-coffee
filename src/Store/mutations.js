@@ -48,6 +48,30 @@ const mutations = {
   [types.CRYPTO_GET_TOTAL] (state) {
     var total = state.cryptos.reduce(function (a, b) { return a + +b.amount }, 0)
     state.cryptoTotal = total
+  },
+  [types.SOCKET_CONNECT] (state) {
+    state.iotaSocketConnected = true
+  },
+  [types.SOCKET_TX] (state, msg) {
+    state.iotaTransaction = msg
+  },
+  [types.BITFINEX_TRADE] (state, msg) {
+    state.bitfinexTrade = msg
+  },
+  [types.BITFINEX_WEBSOCKET_CONNECTED] (state, msg) {
+    state.bitfinexWebSocketConnected = msg
+  },
+  [types.BITFINEX_WEBSOCKET_ERROR] (state, msg) {
+    state.bitfinexWebSocketError = msg
+  },
+  [types.SET_BTC_USD_CHANNEL] (state, msg) {
+    state.btcUsdChannel = msg
+  },
+  [types.SET_IOTA_USD_CHANNEL] (state, msg) {
+    state.iotUsdChannel = msg
+  },
+  [types.SET_IOTA_BTC_CHANNEL] (state, msg) {
+    state.iotBtcChannel = msg
   }
 }
 
