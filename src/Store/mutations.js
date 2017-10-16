@@ -57,6 +57,13 @@ const mutations = {
   },
   [types.BITFINEX_TRADE] (state, msg) {
     state.bitfinexTrade = msg
+    if (msg[0] === state.btcUsdChannel) {
+      state.btcUsdTradeValue = msg[2][3]
+    } else if (msg[0] === state.iotUsdChannel) {
+      state.iotUsdTradeValue = msg[2][3]
+    } else if (msg[0] === state.iotBtcChannel) {
+      state.iotBtcTradeValue = msg[2][3]
+    }
   },
   [types.BITFINEX_WEBSOCKET_CONNECTED] (state, msg) {
     state.bitfinexWebSocketConnected = msg

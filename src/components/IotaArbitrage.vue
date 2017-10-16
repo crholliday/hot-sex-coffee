@@ -9,11 +9,11 @@
   .columns
     .column.is-5
       .heading.is-size-6 USD -> BTC
-      .title {{usd_per_btc | currency}}
+      .title {{getBtcUsdTradeValue | currency}}
       .heading.is-size-6 BTC -> MIOTA
-      .title {{btc_per_miota | currency('$', 8)}}
+      .title {{getIotBtcTradeValue | currency('', 8)}}
       .heading.is-size-6 USD -> MIOTA
-      .title {{usd_per_miota | currency('$', 4)}}
+      .title {{getIotUsdTradeValue | currency('$', 4)}}
     .column.is-7
       .subtitle.is-size-4 {{amount | currency}} -> MIOTA
       .title {{usd_iot | currency('')}} MI
@@ -34,16 +34,13 @@
 <script>
 import moment from 'moment'
 import ConnectedButton from './ConnectedButton'
-const NumberOfRetries = 20
 import {mapGetters} from 'vuex'
 
 // const config = require('../config')
 
 /* Todo
-Move sockets to Vuex
 Add neighbors list
 Move more stuff to config
-Links on Txs
 Modal for disconnected services, tx details, etc
 Figure out how to pause tx list
 Add multi-currency swaps to my trades
@@ -56,15 +53,7 @@ export default {
     return {
       loading: false,
       amount: 1000,
-      btc_usd_channel: '',
-      usd_per_btc: 0,
-      iot_btc_channel: '',
-      btc_per_miota: 0,
-      iot_usd_channel: '',
-      usd_per_miota: 0,
       msg: {},
-      retries: 0,
-      socketConnected: false,
       btcBoughtPrice: 0
     }
   },
@@ -74,120 +63,26 @@ export default {
   computed: {
     ...mapGetters([
       'bitfinexTrade',
+      'getBtcUsdTradeValue',
+      'getIotUsdTradeValue',
+      'getIotBtcTradeValue',
       'bitfinexWebSocketConnected',
-      'bitfinexWebSocketError',
-      'getBtcUsdChannel',
-      'getIotUsdChannel',
-      'getIotBtcChannel'
+      'bitfinexWebSocketError'
     ]),
     usd_btc_iot: function () {
-      return this.amount / this.usd_per_btc / this.btc_per_miota
+      return this.amount / this.getBtcUsdTradeValue / this.getIotBtcTradeValue
     },
     usd_iot: function () {
-      return this.amount / this.usd_per_miota
+      return this.amount / this.getIotUsdTradeValue
     },
     scenario_iot: function () {
-      return this.amount / this.btcBoughtPrice / this.btc_per_miota
+      return this.amount / this.btcBoughtPrice / this.getIotBtcTradeValue
     }
   },
   methods: {
     getDate: function (dateString) {
       return moment.unix(dateString)
-    },
-    loadData: function () {
-      var socket = new WebSocket('wss://api.bitfinex.com/ws/2')
-      const vm = this
-
-      socket.onerror = function (err) {
-        if (this.retries >= NumberOfRetries) {
-          socket.disconnect()
-          console.log('Disconnecting from Bitfinex Arbitrage websocket after 20 errors...')
-        } else {
-          this.retries += 1
-          console.error('Error with the Bitfinex Arbitrage websocket: ', err)
-        }
-      }
-
-      let btcUsdMsg = ({
-        event: 'subscribe',
-        channel: 'trades',
-        symbol: 'tBTCUSD'
-      })
-
-      let iotBtcMsg = ({
-        event: 'subscribe',
-        channel: 'trades',
-        symbol: 'tIOTBTC'
-      })
-
-      let iotUsdMsg = ({
-        event: 'subscribe',
-        channel: 'trades',
-        symbol: 'tIOTUSD'
-      })
-
-      socket.onopen = function (event) {
-        console.log('Connected to Bitfinex for Arbitrage websocket')
-        vm.socketConnected = true
-        socket.send(JSON.stringify(btcUsdMsg))
-        socket.send(JSON.stringify(iotBtcMsg))
-        socket.send(JSON.stringify(iotUsdMsg))
-      }
-
-      socket.onmessage = function (event) {
-        let data = JSON.parse(event.data)
-        vm.msg = data
-        if (data.event === 'subscribed') {
-          if (data.pair === 'BTCUSD') {
-            vm.btc_usd_channel = data.chanId
-          } else if (data.pair === 'IOTBTC') {
-            vm.iot_btc_channel = data.chanId
-          } else if (data.pair === 'IOTUSD') {
-            vm.iot_usd_channel = data.chanId
-          }
-        }
-
-        if (data.length === 3 && data[1] !== 'hb') {
-          vm.message = data
-          if (data[0] === vm.btc_usd_channel) {
-            vm.usd_per_btc = data[2][3]
-          } else if (data[0] === vm.iot_btc_channel) {
-            vm.btc_per_miota = data[2][3]
-          } else if (data[0] === vm.iot_usd_channel) {
-            vm.usd_per_miota = data[2][3]
-          }
-        }
-      }
-
-      socket.onclose = function (event) {
-        console.log('Disconnected from Bitfinex for Arbitrage websocket')
-        vm.socketConnected = false
-        if (vm.retries <= NumberOfRetries) {
-          console.log('Attempting to reconnect Bitfinex for Arbitrage websocket')
-          setTimeout(function () {
-            vm.loadData()
-          }, 1500)
-        }
-      }
     }
-  },
-  watch: {
-    bitfinexTrade: function (data) {
-      let vm = this
-      if (data.length === 3 && data[1] !== 'hb') {
-        vm.message = data
-        if (data[0] === vm.getBtcUsdChannel) {
-          vm.usd_per_btc = data[2][3]
-        } else if (data[0] === vm.getIotBtcChannel) {
-          vm.btc_per_miota = data[2][3]
-        } else if (data[0] === vm.getIotUsdChannel) {
-          vm.usd_per_miota = data[2][3]
-        }
-      }
-    }
-  },
-  mounted () {
-    // this.loadData()
   }
 }
 </script>

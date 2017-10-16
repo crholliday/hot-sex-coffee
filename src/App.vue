@@ -27,4 +27,8 @@ export default {
 <style>
   #app {padding-top: 20px}
   .env {color:darkgrey}
+  html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 </style>

@@ -11,9 +11,9 @@ const getters = {
   iotaSocketConnected: state => state.iotaSocketConnected,
   iotaTransaction: state => state.iotaTransaction,
   bitfinexTrade: state => state.bitfinexTrade,
-  bitfinexTradeByChannel: (state, getters) => (channelId) => {
-    return state.tickerTrade.filter(trade => trade[0] === channelId)
-  },
+  getBtcUsdTradeValue: state => state.btcUsdTradeValue,
+  getIotUsdTradeValue: state => state.iotUsdTradeValue,
+  getIotBtcTradeValue: state => state.iotBtcTradeValue,
   bitfinexWebSocketConnected: state => state.bitfinexWebSocketConnected,
   bitfinexWebSocketError: state => state.bitfinexWebSocketError,
   getBtcUsdChannel: state => state.btcUsdChannel,

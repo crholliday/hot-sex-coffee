@@ -1,23 +1,31 @@
 <template lang="pug">
 .container.stocks
   p.title.is-2 Crypto List <span class='total'>Total Value: ( {{cryptoTotal | currency}} )</span>
+    ConnectedButton(:connected='bitfinexWebSocketConnected')
   .columns.is-multiline
-      CryptoLive(v-bind:ticker='"tBTCUSD"' v-bind:title='"Bitcoin"' v-bind:currency='"BTC"' )
-      CryptoLive(v-bind:ticker='"tIOTUSD"' v-bind:title='"IOTA"' v-bind:currency='"IOT"')      
+      CryptoLive(v-bind:title='"Bitcoin"' 
+                 v-bind:currency='"BTC"' 
+                 v-bind:decimals='2')
+      CryptoLive(v-bind:title='"IOTA"' 
+                 v-bind:currency='"IOT"'
+                 v-bind:decimals='6')      
 </template>
 
 <script>
 import CryptoLive from '../components/CryptoLive.vue'
 import {mapGetters} from 'vuex'
+import ConnectedButton from './ConnectedButton'
 
 export default {
   name: 'crypto-list',
   components: {
-    CryptoLive
+    CryptoLive,
+    ConnectedButton
   },
   computed: {
     ...mapGetters([
-      'cryptoTotal'
+      'cryptoTotal',
+      'bitfinexWebSocketConnected'
     ])
   }
 }

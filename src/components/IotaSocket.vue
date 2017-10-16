@@ -13,84 +13,44 @@
         .level-item
           a(@click='filter = "positive"') Positive
   .spacer
-  a.box.is-marginless(v-for='msg in filteredTransactions' )  
-    .columns
-      .column.is-7.is-paddingless
-        div Tx: {{msg.hash | truncate(18)}}
-        div Tag: {{msg.tag | truncate(20)}}
-        small  {{ getDate(msg.timestamp) | formatDateHuman | capitalize}}
-      .column.is-paddingless
-        div Amount: {{msg.amount}}      
-        div Current Index: {{msg.currentIndex}}
-        div Last Index:  {{msg.lastIndex}}
-      
+  transition-group(name="list" )
+    IotaCard(v-for='msg in filteredTransactions' v-bind:key="msg" 
+                                                  class="list-item" 
+                                                  v-bind:msg="msg" 
+                                                  v-bind:iotUsdTradeValue="getIotUsdTradeValue"
+                                                  v-bind:iotBtcTradeValue="getIotBtcTradeValue")  
+        
   
 </template>
 
 
 <script>
-import moment from 'moment'
-// const NumberOfRetries = 20
 import ConnectedButton from './ConnectedButton'
+import IotaCard from './IotaCard'
 import {mapGetters} from 'vuex'
 
 export default {
   name: 'iota-socket',
   components: {
-    ConnectedButton
+    ConnectedButton,
+    IotaCard
   },
   data () {
     return {
       loading: false,
-      filter: 'all', // all, non-zero
+      filter: 'non-zero', // all, non-zero
       retries: 0,
       msgs: [],
-      socketConnected: false
+      socketConnected: false,
+      amount_unit: 'i'
     }
   },
-  // sockets: {
-  //   connect: function () {
-  //     console.log('Connected to IOTA websocket')
-  //   },
-  //   tx: function (val) {
-  //     let data = (JSON.parse(event.data.slice(2)))
-  //     let vm = this
-  //     vm.socketConnected = true
-  //     if (this.filter === 'non-zero') {
-  //       if (data[1].amount !== '0') {
-  //         vm.msgs.unshift(data[1])
-  //       }
-  //     } else {
-  //       vm.msgs.unshift(data[1])
-  //     }
-
-  //     this.msgs.length > 10 ? this.msgs.pop() : this.msgs
-  //   },
-  //   error: function (err) {
-  //     if (this.retries >= NumberOfRetries) {
-  //       this.$socket.disconnect()
-  //       this.socketConnected = false
-  //       console.log('Disconnecting from IOTA websocket after 20 errors...')
-  //     } else {
-  //       this.retries += 1
-  //       console.error('Error with he IOTA websocket: ', err)
-  //     }
-  //   },
-  //   connect_error: function (err) {
-  //     this.socketConnected = false
-  //     if (this.retries >= NumberOfRetries) {
-  //       this.$socket.disconnect()
-  //       console.log('Disconnecting from IOTA websocket after 20 errors...')
-  //     } else {
-  //       this.retries += 1
-  //       console.error('Error connecting to IOTA websocket: ', err)
-  //     }
-  //   }
-  // },
   computed: {
     ...mapGetters([
       'iotaTransaction',
-      'iotaSocketConnected'
+      'iotaSocketConnected',
+      'getIotUsdTradeValue',
+      'getIotBtcTradeValue'
     ]),
     filteredTransactions: function () {
       if (this.filter === 'non-zero') {
@@ -107,9 +67,6 @@ export default {
     }
   },
   methods: {
-    getDate: function (dateString) {
-      return moment.unix(dateString)
-    }
   },
   watch: {
     iotaTransaction: function (val) {
@@ -137,6 +94,12 @@ export default {
 .content.tx {
   padding: .25rem;
   margin-bottom: .5rem;
+}
+.list-enter-active, .list-leave-active {
+  transition: all .7s;
+}
+.list-enter, .list-leave-to /* .list-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }
 .load {
   z-index: 1000

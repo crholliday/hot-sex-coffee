@@ -3,7 +3,10 @@
     p.title.is-2 Cheap Flights
     .subtitle.is-6 Last updated: {{lastUpdated | formatDateHuman}} 
       | | {{ count }} total records
-    .columns.is-multiline
+    div(v-if='loading')
+      i.fa.fa-spinner.fa-spin.fa-3x.fa-fw
+      .sr-only Loading...
+    .columns.is-multiline(v-else)
       .column.is-one-quarter(v-for='flight in flights')
         .box
           article.media          
@@ -35,7 +38,8 @@ export default {
     return {
       flights: [],
       lastUpdated: '',
-      count: 0
+      count: 0,
+      loading: false
     }
   },
   methods: {
@@ -44,9 +48,11 @@ export default {
     }
   },
   created: function () {
+    this.loading = true
     this.$http.get(config.api_base_url + '/cheap-flight-by-route')
       .then(response => {
         this.flights = response.data
+        this.loading = false
       })
     this.$http.get(config.api_base_url + '/flights-stats')
       .then(response => {

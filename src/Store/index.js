@@ -58,6 +58,9 @@ socket.onmessage = function (event) {
 socket.onclose = function (event) {
   console.log('Disconnected from Bitfinex websocket ...')
   store.dispatch('bitfinexWebSocketConnected', false)
+  setTimeout(function () {
+    socket.connect()
+  }, 5000)
 }
 
 const state = {
@@ -78,7 +81,12 @@ const state = {
   bitfinexWebSocketError: {},
   iotBtcChannel: '',
   iotUsdChannel: '',
-  btcUsdChannel: ''
+  btcUsdChannel: '',
+  btcUsdTradeValue: 0,
+  iotUsdTradeValue: 0,
+  iotBtcTradeValue: 0,
+  reconnectLimit: 20,
+  attemptedReconnects: 0
 }
 
 // eslint-disable-next-line
