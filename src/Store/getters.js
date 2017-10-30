@@ -10,6 +10,7 @@ const getters = {
   cryptoTotal: state => state.cryptoTotal,
   iotaSocketConnected: state => state.iotaSocketConnected,
   iotaTransaction: state => state.iotaTransaction,
+  iotaTransactions: state => state.iotaTransactions,
   bitfinexTrade: state => state.bitfinexTrade,
   getBtcUsdTradeValue: state => state.btcUsdTradeValue,
   getIotUsdTradeValue: state => state.iotUsdTradeValue,

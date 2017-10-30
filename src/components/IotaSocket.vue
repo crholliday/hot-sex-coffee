@@ -14,7 +14,7 @@
           a(@click='filter = "positive"') Positive
   .spacer
   transition-group(name="list" )
-    IotaCard(v-for='msg in filteredTransactions' v-bind:key="msg" 
+    IotaCard(v-for="msg in filteredTransactions" v-bind:key="msg.hash" 
                                                   class="list-item" 
                                                   v-bind:msg="msg" 
                                                   v-bind:iotUsdTradeValue="getIotUsdTradeValue"
@@ -39,50 +39,29 @@ export default {
     return {
       loading: false,
       filter: 'non-zero', // all, non-zero
-      retries: 0,
-      msgs: [],
-      socketConnected: false,
-      amount_unit: 'i'
+      socketConnected: false
     }
   },
   computed: {
     ...mapGetters([
-      'iotaTransaction',
+      'iotaTransactions',
       'iotaSocketConnected',
       'getIotUsdTradeValue',
       'getIotBtcTradeValue'
     ]),
     filteredTransactions: function () {
       if (this.filter === 'non-zero') {
-        return this.msgs.filter(function (msg) {
+        return this.iotaTransactions.filter(function (msg) {
           return msg.amount !== '0'
-        })
+        }).slice(0, 10)
       } else if (this.filter === 'positive') {
-        return this.msgs.filter(function (msg) {
+        return this.iotaTransactions.filter(function (msg) {
           return parseInt(msg.amount) > 0
-        })
+        }).slice(0, 10)
       } else {
-        return this.msgs
+        return this.iotaTransactions.slice(0, 10)
       }
     }
-  },
-  methods: {
-  },
-  watch: {
-    iotaTransaction: function (val) {
-      let vm = this
-      if (vm.filter === 'non-zero') {
-        if (val.amount !== '0') {
-          vm.msgs.unshift(val)
-        }
-      } else {
-        vm.msgs.unshift(val)
-      }
-
-      vm.msgs.length > 10 ? vm.msgs.pop() : vm.msgs
-    }
-  },
-  mounted () {
   }
 }
 </script>

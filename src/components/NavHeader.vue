@@ -6,12 +6,12 @@
                 router-link.nav-item(to="/")
                     i.fa.fa-fire.is-red(style="font-size: 28px; color: red;") &nbsp; Hot Sex Coffee
             .nav-center
-                a.nav-item(href="https://github.com/crholliday")
+                a.nav-item(href="https://github.com/crholliday" target="_blank")
                     .icon
                         i.fa.fa-github
-                a.nav-item
-                    .icon
-                        i.fa.fa-twitter
+                a.nav-item(href="http://www.hotsexcoffee.com:3333/dashboard/db/prometheus-system?refresh=30s&orgId=1" target="_blank")
+                    img(src="../assets/grafana_icon.svg" alt="Grafana" width="16" height="16")
+
 
             <!-- This "nav-toggle" hamburger menu is only visible on mobile -->
             <!-- You need JavaScript to toggle the "is-active" class on "nav-menu" -->
@@ -30,7 +30,7 @@
                     i.fa.fa-file-text-o(style="font-size: 16px") &nbsp;
                     span News
                 router-link.nav-item.is-tab(to="/iota") 
-                    img(src="../assets/iota-logo.svg" alt="Image Title" width="16" height="16")
+                    img(src="../assets/iota-logo.svg" alt="IOTA" width="16" height="16")
                     | &nbsp;
                     span IOTA 
                 router-link.nav-item.is-tab(to="/todos") 

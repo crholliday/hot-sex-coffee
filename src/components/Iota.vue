@@ -7,7 +7,7 @@
           IotaArbitrage
         .tile-is-child.box
           p Neighbors go here
-      .tile.is-parent.is-5
+      .tile.is-parent.is-6
         .tile.is-child
           IotaSocket    
     

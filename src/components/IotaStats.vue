@@ -3,21 +3,21 @@
     nav.level
       .level-item.has-text-centered
         div
-          p.heading Version
-          p.title {{data.appVersion}}
-      .level-item.has-text-centered
-        div
           p.heading Synched
           p.title(v-if="is_synched") {{ String(is_synched) | capitalize}}
           p.title.is-size-4.has-text-grey(v-else) {{data.latestMilestoneIndex}} | {{data.latestSolidSubtangleMilestoneIndex}}
       .level-item.has-text-centered
         div
-          p.heading Neighbors
-          p.title {{data.neighbors}}
+          p.heading Transactions
+          p.title {{data.transactionsToRequest}}
       .level-item.has-text-centered
         div
           p.heading Tips
-          p.title {{data.tips}}  
+          p.title {{data.tips}}
+      .level-item.has-text-centered  
+        div
+          p.heading Neighbors
+          p.title {{data.neighbors}}
       .level-item.has-text-centered
         div
           p.heading Balance
@@ -72,7 +72,7 @@ export default {
 
       iota.api.getNodeInfo(function (error, success) {
         if (error) {
-          console.error(error)
+          console.log(error)
         } else {
           vm.data = success
           vm.is_synched = (success.latestMilestoneIndex - success.latestSolidSubtangleMilestoneIndex) < 2

@@ -6,62 +6,71 @@ import mutations from './mutations'
 
 Vue.use(Vuex)
 
-var socket = new WebSocket('wss://api.bitfinex.com/ws/2')
+function connect () {
+  var socket = new WebSocket('wss://api.bitfinex.com/ws/2')
 
-socket.onerror = function (err) {
-  console.log('Error from Bitfinex websocket: ', err)
-}
+  socket.onerror = function (err) {
+    console.log('Error from Bitfinex websocket: ', err)
+  }
 
-let btcUsdMsg = ({
-  event: 'subscribe',
-  channel: 'trades',
-  symbol: 'tBTCUSD'
-})
+  let btcUsdMsg = ({
+    event: 'subscribe',
+    channel: 'trades',
+    symbol: 'tBTCUSD'
+  })
 
-let iotBtcMsg = ({
-  event: 'subscribe',
-  channel: 'trades',
-  symbol: 'tIOTBTC'
-})
+  let iotBtcMsg = ({
+    event: 'subscribe',
+    channel: 'trades',
+    symbol: 'tIOTBTC'
+  })
 
-let iotUsdMsg = ({
-  event: 'subscribe',
-  channel: 'trades',
-  symbol: 'tIOTUSD'
-})
+  let iotUsdMsg = ({
+    event: 'subscribe',
+    channel: 'trades',
+    symbol: 'tIOTUSD'
+  })
 
-socket.onopen = function (event) {
-  console.log('Connected to Bitfinex websocket')
-  store.dispatch('bitfinexWebSocketConnected', true)
-  socket.send(JSON.stringify(btcUsdMsg))
-  socket.send(JSON.stringify(iotBtcMsg))
-  socket.send(JSON.stringify(iotUsdMsg))
-}
+  socket.onopen = function (event) {
+    console.log('Connected to Bitfinex websocket')
+    store.dispatch('bitfinexWebSocketConnected', true)
+    socket.send(JSON.stringify(btcUsdMsg))
+    socket.send(JSON.stringify(iotBtcMsg))
+    socket.send(JSON.stringify(iotUsdMsg))
+  }
 
-socket.onmessage = function (event) {
-  let data = JSON.parse(event.data)
-  if (data.event === 'subscribed') {
-    if (data.pair === 'BTCUSD') {
-      store.dispatch('setBtcUsdChannel', data.chanId)
-    } else if (data.pair === 'IOTBTC') {
-      store.dispatch('setIotBtcChannel', data.chanId)
-    } else if (data.pair === 'IOTUSD') {
-      store.dispatch('setIotUsdChannel', data.chanId)
+  socket.onmessage = function (event) {
+    let data = JSON.parse(event.data)
+    if (data.event === 'subscribed') {
+      if (data.pair === 'BTCUSD') {
+        store.dispatch('setBtcUsdChannel', data.chanId)
+      } else if (data.pair === 'IOTBTC') {
+        store.dispatch('setIotBtcChannel', data.chanId)
+      } else if (data.pair === 'IOTUSD') {
+        store.dispatch('setIotUsdChannel', data.chanId)
+      }
+    }
+
+    if (data.length === 3 && data[1] !== 'hb') {
+      store.dispatch('bitfinexTrade', data)
     }
   }
 
-  if (data.length === 3 && data[1] !== 'hb') {
-    store.dispatch('bitfinexTrade', data)
+  socket.onclose = function (event) {
+    console.log('Disconnected from Bitfinex websocket ...')
+    store.dispatch('bitfinexWebSocketConnected', false)
+    setTimeout(function () {
+      try {
+        console.log('Attempting to reconnect to Bitfinex websocket ... ')
+        connect()
+      } catch (err) {
+        console.error('Socket reconnect failed...', err)
+      }
+    }, 30000)
   }
 }
 
-socket.onclose = function (event) {
-  console.log('Disconnected from Bitfinex websocket ...')
-  store.dispatch('bitfinexWebSocketConnected', false)
-  setTimeout(function () {
-    socket.connect()
-  }, 5000)
-}
+connect()
 
 const state = {
   isLoggedIn: localStorage.getItem('token'),
@@ -74,6 +83,7 @@ const state = {
   cryptos: [],
   cryptoTotal: 0,
   iotaTransaction: {},
+  iotaTransactions: [],
   iotaSocketConnected: false,
   iotaSocketError: false,
   bitfinexTrade: {},

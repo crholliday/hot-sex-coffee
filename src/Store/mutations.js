@@ -54,6 +54,11 @@ const mutations = {
   },
   [types.SOCKET_TX] (state, msg) {
     state.iotaTransaction = msg
+    // keep iotaTransactions array at 300 items
+    if (state.iotaTransactions.length > 299) {
+      state.iotaTransactions.pop()
+    }
+    state.iotaTransactions.unshift(msg)
   },
   [types.BITFINEX_TRADE] (state, msg) {
     state.bitfinexTrade = msg
