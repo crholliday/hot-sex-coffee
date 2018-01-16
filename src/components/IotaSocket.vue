@@ -14,7 +14,7 @@
           a(@click='filter = "positive"') Positive
   .spacer
   transition-group(name="list" )
-    IotaCard(v-for="msg in filteredTransactions" v-bind:key="msg.hash" 
+    IotaCard(v-for="(msg) in filteredTransactions" v-bind:key="msg.address"
                                                   class="list-item" 
                                                   v-bind:msg="msg" 
                                                   v-bind:iotUsdTradeValue="getIotUsdTradeValue"
@@ -52,7 +52,7 @@ export default {
     filteredTransactions: function () {
       if (this.filter === 'non-zero') {
         return this.iotaTransactions.filter(function (msg) {
-          return msg.amount !== '0'
+          return msg.amount !== '0' && msg.currentIndex === '0'
         }).slice(0, 10)
       } else if (this.filter === 'positive') {
         return this.iotaTransactions.filter(function (msg) {

@@ -70,7 +70,7 @@ export default {
       let valUnit = this.getUnit(val)
       let num = Number(val)
       let newVal = utils.convertUnits(num, 'i', valUnit).toFixed(2)
-      return valUnit + ' ' + newVal
+      return newVal + ' ' + valUnit
     },
     getDate: function (dateString) {
       return moment.unix(dateString)

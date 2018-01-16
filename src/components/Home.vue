@@ -18,20 +18,17 @@
                 h4.title.is-4 {{flight.departureAirport}} to {{flight.arrivalAirport}}
                 h5.subtitle.is-6.gray Average: {{flight.averagePrice | currency}}
                 p: small Created: {{flight.created | formatDateHuman}}
-    stock-list
     crypto-list
 </template>
 
 <script>
 const config = require('../config')
 const moment = require('moment')
-import StockList from '../components/StockList.vue'
 import CryptoList from '../components/CryptoList.vue'
 
 export default {
   name: 'home',
   components: {
-    StockList,
     CryptoList
   },
   data () {
