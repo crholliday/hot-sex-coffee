@@ -55,7 +55,7 @@ const mutations = {
   [types.SOCKET_TX] (state, msg) {
     state.iotaTransaction = msg
     // make sure tx does not already exist
-    if (state.iotaTransactions.indexOf(msg) < 0) {
+    if (state.iotaTransactions.findIndex(tx => tx.address === msg.address) < 0) {
       // keep iotaTransactions array at 300 items
       if (state.iotaTransactions.length > 299) {
         state.iotaTransactions.pop()
